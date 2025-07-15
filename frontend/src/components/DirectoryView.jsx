@@ -17,7 +17,7 @@ function DirectoryView() {
   const fetchData = async () => {
     try {
       console.log(BASE_URL);
-      const response = await fetch(`${BASE_URL}/directory/${dirPath? dirPath+"/": ""}`);
+      const response = await fetch(`${BASE_URL}/folder/${dirPath? dirPath+"/": ""}`);
       const contentList = await response.json();
 
       if (contentList) {
@@ -39,7 +39,8 @@ function DirectoryView() {
     // console.log("loading: ", loading);
     try {
       const xhr = new XMLHttpRequest();
-      xhr.open("POST", `${BASE_URL}/files/${dirPath ? dirPath + "/" : ""}${file.name}`);
+      xhr.open("POST", `${BASE_URL}/file/${file.name}`);
+      xhr.setRequestHeader("parentDirId", contentList.id);
       xhr.upload.addEventListener('progress', (e) => {
         const per = (e.loaded / e.total).toFixed(2) * 100;
         setPercentage(per);
@@ -75,9 +76,9 @@ function DirectoryView() {
     }
   }
 
-  const handleDelete = async (item) => {
+  const handleDelete = async (id) => {
     try {
-      const response = await fetch(`${BASE_URL}/files/${dirPath ? dirPath + "/" : ""}${item.name}`, {
+      const response = await fetch(`${BASE_URL}/file/${id}`, {
         method: "DELETE",
       });
 
@@ -91,14 +92,14 @@ function DirectoryView() {
     }
   }
 
-  const handleRename = async (oldFilename) => {
+  const handleRename = async (id) => {
     try {
-      const reponse = await fetch(`${BASE_URL}/files/${dirPath ? dirPath + "/" : ""}${oldFilename}`, {
+      const reponse = await fetch(`${BASE_URL}/file/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ newFilename: `${dirPath ? dirPath + "/" : ""}${newFilename}` }),
+        body: JSON.stringify({ newFilename: `${newFilename}` }),
       });
       const data = await reponse.json();
 
@@ -149,7 +150,7 @@ function DirectoryView() {
         <h2>Stored Files</h2>
 
         <ul>
-          {contentList?.map((item) => (
+          {contentList.files?.map((item) => (
             <li key={item.id} className="flex items-center gap-5">
               <span>{item.name}({item.isDirectory ? "folder" : "file"})</span>
 
@@ -157,15 +158,15 @@ function DirectoryView() {
                 <button className="border border-black" onClick={() => {
 
                 }}>
-                  {!item.isDirectory && <a href={`${BASE_URL}/files/${dirPath ? dirPath + "/" : ""}${item.name}?action=open`}>Open</a>}
+                  {!item.isDirectory && <a href={`${BASE_URL}/file/${item.id}?action=open`}>Open</a>}
                   {item.isDirectory && <Link to={`./${item.name}`}>Open</Link>}
                 </button>
-                {!item.isDirectory && <button className="border border-black"><a href={`${BASE_URL}/files/${dirPath ? dirPath + "/" : ""}${item.name}?action=download`}>Download</a></button>}
+                {!item.isDirectory && <button className="border border-black"><a href={`${BASE_URL}/file/${item.id}?action=download`}>Download</a></button>}
                 <button className="border border-black" onClick={() => {
-                  handleDelete(item);
+                  handleDelete(item.id);
                 }}>Delete</button>
                 <input className="border border-black" type="text" placeholder="New name" onChange={(e) => setNewFilename(e.target.value)} value={newFilename} />
-                <button className="border border-black" onClick={() => handleRename(item.name)}>Rename</button>
+                <button className="border border-black" onClick={() => handleRename(item.id)}>Rename</button>
               </div>
 
 

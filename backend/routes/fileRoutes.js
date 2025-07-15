@@ -11,11 +11,11 @@ const router = express.Router();
 // Read File
 router.get("/:id", async (req, res) => {
     const { id } = req.params;
-    const { extension } = filesData.find((file) => file.id === id);
+    const { extension, name } = filesData.find((file) => file.id === id);
     const fullFilePath = `${process.cwd()}/storage/${id}${extension}`;
 
     if (req.query.action === "download") {
-        res.set("Content-Disposition", "attachment");
+        res.set("Content-Disposition", `attachment; filename=${name}`);
     }
     res.sendFile(fullFilePath);
 }
@@ -24,6 +24,7 @@ router.get("/:id", async (req, res) => {
 // Upload File
 router.post("/:filename", async (req, res) => {
     const { filename } = req.params;
+    const parentDirId = req.headers.parentdirid;
     const id = crypto.randomUUID();
     const extension = path.extname(filename);
     const fullFilename = `${id}${extension}`;
@@ -37,7 +38,7 @@ router.post("/:filename", async (req, res) => {
                 id,
                 extension,
                 name: filename,
-                parentDirId: "650814cd-8737-4b7d-b32f-44cee7c942d8"
+                parentDirId: parentDirId
             };
             filesData.push(fileData);
             const parentDirData = directoriesData.find((dir) => dir.id === fileData.parentDirId);
@@ -70,13 +71,14 @@ router.patch("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
     try {
         const { id } = req.params;
-        const fileData = filesData.find((file) => file.id === id);
+        const fileIndex = filesData.findIndex((file) => file.id === id);
+        const fileData = filesData[fileIndex];
         const { extension } = fileData;
         await rename(`./storage/${id}${extension}`, `./trash/${id}${extension}`);
-        const newFilesData = filesData.filter((file) => file.id !== id);
+        filesData.splice(fileIndex, 1);
         const parentDirData = directoriesData.find((dir) => dir.id === fileData.parentDirId);
         parentDirData.files = parentDirData.files.filter((fileId) => fileId !== fileData.id);
-        await writeFile('./filesDB.json', JSON.stringify(newFilesData));
+        await writeFile('./filesDB.json', JSON.stringify(filesData));
         await writeFile('./directoriesDB.json', JSON.stringify(directoriesData));
         res.json({ message: "File Deleted Successfully!" });
     } catch (error) {
