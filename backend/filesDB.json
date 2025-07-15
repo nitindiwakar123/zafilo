@@ -6,9 +6,15 @@
         "parentDirId": "650814cd-8737-4b7d-b32f-44cee7c942d8"
     },
     {
-        "id": "0648c85c-ff1b-496a-8b29-83fe2197d4fe",
-        "extension": ".pdf",
-        "name": "web.pdf",
+        "id": "06f7c847-8f52-4f7e-94ad-b98510f62cdf",
+        "extension": ".mp4",
+        "name": "mybug.mp4",
+        "parentDirId": "650814cd-8737-4b7d-b32f-44cee7c942d8"
+    },
+    {
+        "id": "63f886e2-a04a-4332-80e8-71ac6efcc455",
+        "extension": ".png",
+        "name": "XSS-Comment.png",
         "parentDirId": "650814cd-8737-4b7d-b32f-44cee7c942d8"
     }
 ]

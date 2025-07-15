@@ -1,5 +1,3 @@
-import { open, readdir, rename, mkdir } from "node:fs/promises";
-import { join, basename } from "node:path";
 import express from "express";
 import cors from "cors";
 import directoryRoutes from "./routes/directoryRoutes.js";

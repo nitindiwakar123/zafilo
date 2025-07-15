@@ -3,6 +3,7 @@ import path from "node:path";
 import express from "express";
 import directoriesData from "../directoriesDB.json" with {type: "json"};
 import filesData from "../filesDB.json" with {type: "json"};
+import { dir } from "node:console";
 
 const router = express.Router();
 
@@ -24,7 +25,7 @@ router.get("/:id", async (req, res) => {
 // Upload File
 router.post("/:filename", async (req, res) => {
     const { filename } = req.params;
-    const parentDirId = req.headers.parentdirid;
+    const parentDirId = req.headers.parentdirid || directoriesData[0].id;
     const id = crypto.randomUUID();
     const extension = path.extname(filename);
     const fullFilename = `${id}${extension}`;

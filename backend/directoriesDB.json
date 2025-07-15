@@ -1,1 +1,62 @@
-[{"id":"650814cd-8737-4b7d-b32f-44cee7c942d8","name":"Root","parentDir":null,"files":["42aa24bb-1992-4ce5-84a0-44748956162e","0648c85c-ff1b-496a-8b29-83fe2197d4fe"],"directories":[]}]
+[
+    {
+        "id": "650814cd-8737-4b7d-b32f-44cee7c942d8",
+        "name": "Root",
+        "parentDirId": null,
+        "files": [
+            "42aa24bb-1992-4ce5-84a0-44748956162e",
+            "06f7c847-8f52-4f7e-94ad-b98510f62cdf",
+            "63f886e2-a04a-4332-80e8-71ac6efcc455"
+        ],
+        "directories": [
+            "48251d3a-81e0-4d27-af63-d024e3d08cb6",
+            "d19a4ca4-05dd-43f2-9af8-89ffa687c614"
+        ]
+    },
+    {
+        "id": "48251d3a-81e0-4d27-af63-d024e3d08cb6",
+        "name": "newfolder",
+        "parentDirId": "650814cd-8737-4b7d-b32f-44cee7c942d8",
+        "files": [],
+        "directories": [
+            "2146b3ef-6c60-4e9e-acef-5846bec7544b",
+            "c42dd060-263f-4877-97d0-37fc697a6ed0",
+            "75900ea5-9335-457a-823f-7984c90a0b22"
+        ]
+    },
+    {
+        "id": "2146b3ef-6c60-4e9e-acef-5846bec7544b",
+        "name": "images",
+        "parentDirId": "48251d3a-81e0-4d27-af63-d024e3d08cb6",
+        "files": [],
+        "directories": []
+    },
+    {
+        "id": "c42dd060-263f-4877-97d0-37fc697a6ed0",
+        "name": "audios",
+        "parentDirId": "48251d3a-81e0-4d27-af63-d024e3d08cb6",
+        "files": [],
+        "directories": []
+    },
+    {
+        "id": "75900ea5-9335-457a-823f-7984c90a0b22",
+        "name": "docs",
+        "parentDirId": "48251d3a-81e0-4d27-af63-d024e3d08cb6",
+        "files": [],
+        "directories": []
+    },
+    {
+        "id": "4b4e535e-8f0c-4bb3-8574-7f537d9a6ec6",
+        "name": "myfolder",
+        "parentDirId": "650814cd-8737-4b7d-b32f-44cee7c942d8",
+        "files": [],
+        "directories": []
+    },
+    {
+        "id": "d19a4ca4-05dd-43f2-9af8-89ffa687c614",
+        "name": "mydocs",
+        "parentDirId": "650814cd-8737-4b7d-b32f-44cee7c942d8",
+        "files": [],
+        "directories": []
+    }
+]

@@ -4,7 +4,9 @@ import { useParams, Link } from "react-router-dom";
 function DirectoryView() {
 
   const BASE_URL = "http://localhost";
-  const [contentList, setContentList] = useState([]);
+  const [currentDirectory, setCurrentDirectory] = useState({});
+  const [directoriesList, setDirectoriesList] = useState([]);
+  const [filesList, setFilesList] = useState([]);
   const [percentage, setPercentage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [newFilename, setNewFilename] = useState("");
@@ -17,12 +19,17 @@ function DirectoryView() {
   const fetchData = async () => {
     try {
       console.log(BASE_URL);
-      const response = await fetch(`${BASE_URL}/folder/${dirPath? dirPath+"/": ""}`);
+      const response = await fetch(`${BASE_URL}/folder/${dirPath ? dirPath + "/" : ""}`);
       const contentList = await response.json();
+
 
       if (contentList) {
         console.log(contentList);
-        setContentList(contentList);
+        const {id, name, parentDir} = contentList;
+        setCurrentDirectory({id, name, parentDir});
+        setDirectoriesList(contentList.directories);
+        setFilesList(contentList.files);
+
       }
     } catch (error) {
       console.log("fetchData :: catch :: error :: ", error);
@@ -40,7 +47,7 @@ function DirectoryView() {
     try {
       const xhr = new XMLHttpRequest();
       xhr.open("POST", `${BASE_URL}/file/${file.name}`);
-      xhr.setRequestHeader("parentDirId", contentList.id);
+      // xhr.setRequestHeader("parentDirId", currentDirectory.id);
       xhr.upload.addEventListener('progress', (e) => {
         const per = (e.loaded / e.total).toFixed(2) * 100;
         setPercentage(per);
@@ -61,7 +68,7 @@ function DirectoryView() {
 
   const handleCreateDirectory = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/directory/${dirPath? dirPath+"/": ""}${newFolder.foldername}`, {
+      const response = await fetch(`${BASE_URL}/directory/${dirPath ? dirPath + "/" : ""}${newFolder.foldername}`, {
         method: "POST",
       });
 
@@ -150,23 +157,20 @@ function DirectoryView() {
         <h2>Stored Files</h2>
 
         <ul>
-          {contentList.files?.map((item) => (
-            <li key={item.id} className="flex items-center gap-5">
-              <span>{item.name}({item.isDirectory ? "folder" : "file"})</span>
+          {filesList?.map(({ id, name }) => (
+            <li key={id} className="flex items-center gap-5">
+              <span>{name}</span>
 
               <div className="flex items-center gap-2">
-                <button className="border border-black" onClick={() => {
-
-                }}>
-                  {!item.isDirectory && <a href={`${BASE_URL}/file/${item.id}?action=open`}>Open</a>}
-                  {item.isDirectory && <Link to={`./${item.name}`}>Open</Link>}
+                <button className="border border-black">
+                  <a href={`${BASE_URL}/file/${id}?action=open`}>Open</a>
                 </button>
-                {!item.isDirectory && <button className="border border-black"><a href={`${BASE_URL}/file/${item.id}?action=download`}>Download</a></button>}
+                <button className="border border-black"><a href={`${BASE_URL}/file/${id}?action=download`}>Download</a></button>
                 <button className="border border-black" onClick={() => {
-                  handleDelete(item.id);
+                  handleDelete(id);
                 }}>Delete</button>
                 <input className="border border-black" type="text" placeholder="New name" onChange={(e) => setNewFilename(e.target.value)} value={newFilename} />
-                <button className="border border-black" onClick={() => handleRename(item.id)}>Rename</button>
+                <button className="border border-black" onClick={() => handleRename(id)}>Rename</button>
               </div>
 
 
