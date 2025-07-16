@@ -14,19 +14,19 @@ function DirectoryView() {
     isNewFolder: false,
     foldername: "",
   });
-  const { '*': dirPath } = useParams();
-
+  const {dirId} = useParams();
+console.log(dirId)
   const fetchData = async () => {
     try {
       console.log(BASE_URL);
-      const response = await fetch(`${BASE_URL}/folder/${dirPath ? dirPath + "/" : ""}`);
+      const response = await fetch(`${BASE_URL}/folder/${dirId || ""}`);
       const contentList = await response.json();
 
 
       if (contentList) {
         console.log(contentList);
-        const {id, name, parentDir} = contentList;
-        setCurrentDirectory({id, name, parentDir});
+        const { id, name, parentDir } = contentList;
+        setCurrentDirectory({ id, name, parentDir });
         setDirectoriesList(contentList.directories);
         setFilesList(contentList.files);
 
@@ -47,7 +47,7 @@ function DirectoryView() {
     try {
       const xhr = new XMLHttpRequest();
       xhr.open("POST", `${BASE_URL}/file/${file.name}`);
-      // xhr.setRequestHeader("parentDirId", currentDirectory.id);
+      xhr.setRequestHeader("parentDirId", currentDirectory.id);
       xhr.upload.addEventListener('progress', (e) => {
         const per = (e.loaded / e.total).toFixed(2) * 100;
         setPercentage(per);
@@ -68,8 +68,11 @@ function DirectoryView() {
 
   const handleCreateDirectory = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/directory/${dirPath ? dirPath + "/" : ""}${newFolder.foldername}`, {
+      const response = await fetch(`${BASE_URL}/folder/${dirId || ""}`, {
         method: "POST",
+        headers: {
+          dirname: newFolder.foldername
+        }
       });
 
       const data = await response.json();
@@ -121,7 +124,7 @@ function DirectoryView() {
 
   useEffect(() => {
     fetchData();
-  }, [dirPath]);
+  }, [dirId]);
 
   return (
     <div className="flex py-20 px-20 items-center justify-between">
@@ -142,7 +145,9 @@ function DirectoryView() {
                 <input className="border border-black" value={newFolder.foldername} onChange={(e) => {
                   setNewFolder((prev) => ({ ...prev, foldername: e.target.value }));
                 }} type="text" placeholder="Foler name" />
-                <button className="border border-black" onClick={handleCreateDirectory}>Create</button>
+                <button className="border border-black" onClick={handleCreateDirectory}>
+                  <Link to={`/folder/${currentDirectory.id}`}>Create</Link>
+                </button>
               </div>
             }
           </div>
@@ -154,6 +159,29 @@ function DirectoryView() {
       <div className="">
 
 
+        <h2>Stored Folders</h2>
+
+        <ul>
+          {directoriesList?.map(({ id, name }) => (
+            <li key={id} className="flex items-center gap-5">
+              <span>{name}</span>
+
+              <div className="flex items-center gap-2">
+                <button className="border border-black">
+                  <Link to={`/folder/${id}`}>Open</Link>
+                </button>
+                <button className="border border-black" onClick={() => {
+                  handleDelete(id);
+                }}>Delete</button>
+                <input className="border border-black" type="text" placeholder="New name" onChange={(e) => setNewFilename(e.target.value)} value={newFilename} />
+                <button className="border border-black" onClick={() => handleRename(id)}>Rename</button>
+              </div>
+
+
+            </li>
+          ))}
+        </ul>
+
         <h2>Stored Files</h2>
 
         <ul>
@@ -163,7 +191,7 @@ function DirectoryView() {
 
               <div className="flex items-center gap-2">
                 <button className="border border-black">
-                  <a href={`${BASE_URL}/file/${id}?action=open`}>Open</a>
+                  <a href={`${BASE_URL}/file/${id}`}>Open</a>
                 </button>
                 <button className="border border-black"><a href={`${BASE_URL}/file/${id}?action=download`}>Download</a></button>
                 <button className="border border-black" onClick={() => {

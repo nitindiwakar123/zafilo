@@ -16,5 +16,17 @@
         "extension": ".png",
         "name": "XSS-Comment.png",
         "parentDirId": "650814cd-8737-4b7d-b32f-44cee7c942d8"
+    },
+    {
+        "id": "93268490-d32b-4835-8e01-bc85274092d1",
+        "extension": ".png",
+        "name": "Screenshot 2025-06-28 110538.png",
+        "parentDirId": "1e345681-05e2-44e1-a83e-28740960d936"
+    },
+    {
+        "id": "b88b8ece-8f6c-48eb-9a2c-837b79aba582",
+        "extension": ".pdf",
+        "name": "web.pdf",
+        "parentDirId": "14ff29de-5f07-4f7c-99e4-98d74d74b296"
     }
 ]

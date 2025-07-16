@@ -3,7 +3,11 @@ import DirectoryView from "./components/DirectoryView";
 
 const router = createBrowserRouter([
   {
-    path: "/*",
+    path: "/",
+    element: <DirectoryView />,
+  },
+  {
+    path: "/folder/:dirId",
     element: <DirectoryView />,
   },
 ]);

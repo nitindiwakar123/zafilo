@@ -12,16 +12,15 @@ const router = express.Router();
 router.get("/{:id}", async (req, res) => {
     try {
         const { id } = req.params;
-        if (!id) {
-            const directoryData = directoriesData[0];
-            const files = directoryData.files?.map((fileId) => {
-                return filesData.find((file) => file.id === fileId);
-            });
-            res.json({ ...directoryData, files });
-        } else {
-            const directoryData = directoriesData.find((dir) => dir.id === id);
-            res.json(directoryData);
-        }
+        const directoryData = id ? directoriesData.find((dir) => dir.id === id) : directoriesData[0];
+        const files = directoryData.files?.map((fileId) => {
+            return filesData.find((file) => file.id === fileId);
+        });
+        const directories = directoryData.directories?.map((dirId) => {
+            return directoriesData.find((dir) => dir.id === dirId);
+        }).map(({ id, name }) => ({ id, name }));
+        res.json({ ...directoryData, files, directories });
+
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
@@ -34,9 +33,9 @@ router.get("/trash", async (req, res) => {
 });
 
 // Create a Directory
-router.post("/:dirname", async (req, res) => {
-    const { dirname } = req.params;
-    const parentDirId = req.headers.parentdirid || directoriesData[0].id;
+router.post("/{:parentDirId}", async (req, res) => {
+    const parentDirId = req.params.parentDirId || directoriesData[0].id;
+    const { dirname } = req.headers;
     try {
         const directoryData = {
             id: crypto.randomUUID(),
@@ -45,9 +44,9 @@ router.post("/:dirname", async (req, res) => {
             files: [],
             directories: []
         }
-        directoriesData.push(directoryData);
         const parentDir = directoriesData.find((dir) => dir.id === parentDirId);
         parentDir.directories.push(directoryData.id);
+        directoriesData.push(directoryData);
 
         await writeFile('./directoriesDB.json', JSON.stringify(directoriesData));
         res.json({ "message": "Folder Successfully Created!" })
@@ -71,17 +70,24 @@ router.patch("/:id", async (req, res) => {
 });
 
 router.delete("/:id", async (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
     try {
         const directoryData = directoriesData.find((dir) => dir.id === id);
-        const newDirectoriesData = directoriesData.filter((dir) => dir.id !== directoryData.id && dir.parentDirId !== directoryData.id);
-        const parentDirData = newDirectoriesData.find((dir) => dir.id === directoryData.parentDirId);
+        for (let i = 0; i < directoriesData.length; i++) {
+            const currentDir = directoriesData[i];
+            if (currentDir.id === directoryData.id || currentDir.parentDirId === directoryData.id) {
+                console.log("hello: ", i)
+                directoriesData.splice(i, 1);
+                i--;
+            }
+        }
+        const parentDirData = directoriesData.find((dir) => dir.id === directoryData.parentDirId);
         parentDirData.directories = parentDirData.directories.filter((dirId) => dirId !== directoryData.id);
-        console.log(newDirectoriesData);
-        await writeFile('./directoriesDB.json', JSON.stringify(newDirectoriesData));
+        console.log(directoriesData);
+        await writeFile('./directoriesDB.json', JSON.stringify(directoriesData));
         res.json({ "message": "Folder deleted successfully!" });
     } catch (error) {
-        res.status(404).json({"message": error.message});
+        res.status(404).json({ "message": error.message });
     }
 })
 
