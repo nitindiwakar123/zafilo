@@ -23,9 +23,10 @@ router.get("/:id", async (req, res) => {
 );
 
 // Upload File
-router.post("/:filename", async (req, res) => {
-    const { filename } = req.params;
-    const parentDirId = req.headers.parentdirid || directoriesData[0].id;
+router.post("/{:parentDirId}", async (req, res) => {
+    console.log(req.url);
+    const parentDirId = req.params.parentDirId || directoriesData[0].id;
+    const { filename } = req.headers;
     const id = crypto.randomUUID();
     const extension = path.extname(filename);
     const fullFilename = `${id}${extension}`;
@@ -42,7 +43,7 @@ router.post("/:filename", async (req, res) => {
                 parentDirId: parentDirId
             };
             filesData.push(fileData);
-            const parentDirData = directoriesData.find((dir) => dir.id === fileData.parentDirId);
+            const parentDirData = directoriesData.find((dir) => dir.id === parentDirId);
             parentDirData.files.push(fileData.id);
             await writeFile('./filesDB.json', JSON.stringify(filesData));
             await writeFile('./directoriesDB.json', JSON.stringify(directoriesData));
@@ -86,5 +87,6 @@ router.delete("/:id", async (req, res) => {
         res.status(404).json({ message: "Not Found!" });
     }
 });
+
 
 export default router;

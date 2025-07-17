@@ -1,4 +1,4 @@
-import { readdir, mkdir, writeFile } from "node:fs/promises";
+import { readdir, mkdir, writeFile, rename } from "node:fs/promises";
 import { join } from "node:path";
 import express from "express";
 import directoriesData from "../directoriesDB.json" with {type: "json"};
@@ -12,6 +12,7 @@ const router = express.Router();
 router.get("/{:id}", async (req, res) => {
     try {
         const { id } = req.params;
+        console.log(id);
         const directoryData = id ? directoriesData.find((dir) => dir.id === id) : directoriesData[0];
         const files = directoryData.files?.map((fileId) => {
             return filesData.find((file) => file.id === fileId);
@@ -57,8 +58,10 @@ router.post("/{:parentDirId}", async (req, res) => {
 
 // Rename a Directory
 router.patch("/:id", async (req, res) => {
+    console.log(req.url)
     const { id } = req.params;
     const { newDirname } = req.body;
+    console.log(newDirname);
     try {
         const directoryData = directoriesData.find((dir) => dir.id === id);
         directoryData.name = newDirname;
@@ -69,27 +72,19 @@ router.patch("/:id", async (req, res) => {
     }
 });
 
+// Delete a Directory
 router.delete("/:id", async (req, res) => {
     const { id } = req.params;
     try {
         const directoryData = directoriesData.find((dir) => dir.id === id);
-        for (let i = 0; i < directoriesData.length; i++) {
-            const currentDir = directoriesData[i];
-            if (currentDir.id === directoryData.id || currentDir.parentDirId === directoryData.id) {
-                console.log("hello: ", i)
-                directoriesData.splice(i, 1);
-                i--;
-            }
-        }
         const parentDirData = directoriesData.find((dir) => dir.id === directoryData.parentDirId);
-        parentDirData.directories = parentDirData.directories.filter((dirId) => dirId !== directoryData.id);
-        console.log(directoriesData);
-        await writeFile('./directoriesDB.json', JSON.stringify(directoriesData));
+        parentDirData.directories = parentDirData.directories.filter((dirId) => dirId !== id);
+        await deleteDirectory(id);
         res.json({ "message": "Folder deleted successfully!" });
     } catch (error) {
         res.status(404).json({ "message": error.message });
     }
-})
+});
 
 async function getDirectoryContent(path = "") {
     const content = await readdir(path, { withFileTypes: true });
@@ -97,6 +92,31 @@ async function getDirectoryContent(path = "") {
         return { name: item.name, isDirectory: item.isDirectory() }
     });
     return contentList;
+}
+
+async function deleteDirectory(dirId) {
+    const directoryIndex = directoriesData.findIndex((dir) => dir.id === dirId);
+    if (directoryIndex === -1) return;
+    const directoryData = directoriesData[directoryIndex];
+    directoriesData.splice(directoryIndex, 1);
+    try {
+
+        for (const fileId of directoryData.files) {
+            const fileIndex = filesData.findIndex((file) => file.id === fileId);
+            const { extension } = filesData[fileIndex];
+            await rename(`./storage/${fileId}${extension}`, `./trash/${fileId}${extension}`);
+            filesData.splice(fileIndex, 1);
+        }
+
+        for (const dirId of directoryData.directories) {
+            await deleteDirectory(dirId);
+        }
+
+        await writeFile('./filesDB.json', JSON.stringify(filesData));
+        await writeFile('./directoriesDB.json', JSON.stringify(directoriesData));
+    } catch (error) {
+        console.log("deleteDirectory :: error :: ", error);
+    }
 }
 
 export default router;

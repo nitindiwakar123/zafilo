@@ -4,7 +4,6 @@ import { useParams, Link } from "react-router-dom";
 function DirectoryView() {
 
   const BASE_URL = "http://localhost";
-  const [currentDirectory, setCurrentDirectory] = useState({});
   const [directoriesList, setDirectoriesList] = useState([]);
   const [filesList, setFilesList] = useState([]);
   const [percentage, setPercentage] = useState(0);
@@ -14,8 +13,8 @@ function DirectoryView() {
     isNewFolder: false,
     foldername: "",
   });
-  const {dirId} = useParams();
-console.log(dirId)
+  const { dirId } = useParams();
+
   const fetchData = async () => {
     try {
       console.log(BASE_URL);
@@ -25,44 +24,12 @@ console.log(dirId)
 
       if (contentList) {
         console.log(contentList);
-        const { id, name, parentDir } = contentList;
-        setCurrentDirectory({ id, name, parentDir });
         setDirectoriesList(contentList.directories);
         setFilesList(contentList.files);
 
       }
     } catch (error) {
       console.log("fetchData :: catch :: error :: ", error);
-    }
-  }
-
-  const handleUpload = async (event) => {
-    setLoading(true);
-    const file = event.target.files[0];
-    if (!file) {
-      console.log("No file selected");
-      return;
-    }
-    // console.log("loading: ", loading);
-    try {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", `${BASE_URL}/file/${file.name}`);
-      xhr.setRequestHeader("parentDirId", currentDirectory.id);
-      xhr.upload.addEventListener('progress', (e) => {
-        const per = (e.loaded / e.total).toFixed(2) * 100;
-        setPercentage(per);
-      });
-      xhr.send(file);
-
-      xhr.addEventListener('load', () => {
-        console.log(xhr.response);
-        fetchData();
-        setTimeout(() => {
-          setLoading(false);
-        }, 2000);
-      })
-    } catch (err) {
-      console.error("Fetch failed:", err);
     }
   }
 
@@ -86,10 +53,31 @@ console.log(dirId)
     }
   }
 
-  const handleDelete = async (id) => {
+  const handleRenameDirectory = async (id) => {
+    console.log(newFolder.foldername);
     try {
-      const response = await fetch(`${BASE_URL}/file/${id}`, {
-        method: "DELETE",
+      const response = await fetch(`${BASE_URL}/folder/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ newDirname: `${newFolder.foldername}` })
+      });
+
+      const data = await response.json();
+      if (data) {
+        fetchData();
+        setNewFolder((prev) => ({ ...prev, foldername: "" }));
+      }
+    } catch (error) {
+      console.log("handleRenameDirectory :: error :: ", error.message);
+    }
+  }
+
+  const handleDeleteDirectory = async (id) => {
+    try {
+      const response = await fetch(`${BASE_URL}/folder/${id}`, {
+        method: "DELETE"
       });
 
       const data = await response.json();
@@ -98,11 +86,41 @@ console.log(dirId)
         fetchData();
       }
     } catch (error) {
-      console.log("handleDelete :: catch :: error :: ", error.message);
+      console.log("handleDeleteDirectory :: error :: ", error.message);
     }
   }
 
-  const handleRename = async (id) => {
+  const handleFileUpload = async (event) => {
+    setLoading(true);
+    const file = event.target.files[0];
+    if (!file) {
+      console.log("No file selected");
+      return;
+    }
+    // console.log("loading: ", loading);
+    try {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", `${BASE_URL}/file/${dirId || ""}`);
+      xhr.setRequestHeader("filename", file.name);
+      xhr.upload.addEventListener('progress', (e) => {
+        const per = (e.loaded / e.total).toFixed(2) * 100;
+        setPercentage(per);
+      });
+      xhr.send(file);
+
+      xhr.addEventListener('load', () => {
+        console.log(xhr.response);
+        fetchData();
+        setTimeout(() => {
+          setLoading(false);
+        }, 2000);
+      })
+    } catch (err) {
+      console.error("Fetch failed:", err);
+    }
+  }
+
+  const handleFileRename = async (id) => {
     try {
       const reponse = await fetch(`${BASE_URL}/file/${id}`, {
         method: "PATCH",
@@ -122,6 +140,22 @@ console.log(dirId)
     }
   }
 
+  const handleFileDelete = async (id) => {
+    try {
+      const response = await fetch(`${BASE_URL}/file/${id}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+      if (data) {
+        console.log(data);
+        fetchData();
+      }
+    } catch (error) {
+      console.log("handleFileDelete :: catch :: error :: ", error.message);
+    }
+  }
+
   useEffect(() => {
     fetchData();
   }, [dirId]);
@@ -134,7 +168,7 @@ console.log(dirId)
           <div className="flex flex-col">
             <h2>Upload New File</h2>
             <label htmlFor="file">Choose a file</label>
-            <input className="border border-black" type="file" id="file" name="file" onChange={handleUpload} />
+            <input className="border border-black" type="file" id="file" name="file" onChange={handleFileUpload} />
             {loading && <p>{Math.round(percentage)}% Uploaded!</p>}
           </div>
 
@@ -145,9 +179,7 @@ console.log(dirId)
                 <input className="border border-black" value={newFolder.foldername} onChange={(e) => {
                   setNewFolder((prev) => ({ ...prev, foldername: e.target.value }));
                 }} type="text" placeholder="Foler name" />
-                <button className="border border-black" onClick={handleCreateDirectory}>
-                  <Link to={`/folder/${currentDirectory.id}`}>Create</Link>
-                </button>
+                <button className="border border-black" onClick={handleCreateDirectory}>Create</button>
               </div>
             }
           </div>
@@ -171,10 +203,10 @@ console.log(dirId)
                   <Link to={`/folder/${id}`}>Open</Link>
                 </button>
                 <button className="border border-black" onClick={() => {
-                  handleDelete(id);
+                  handleDeleteDirectory(id);
                 }}>Delete</button>
-                <input className="border border-black" type="text" placeholder="New name" onChange={(e) => setNewFilename(e.target.value)} value={newFilename} />
-                <button className="border border-black" onClick={() => handleRename(id)}>Rename</button>
+                <input className="border border-black" type="text" placeholder="New name" onChange={(e) => setNewFolder((prev) => ({ ...prev, foldername: e.target.value }))} />
+                <button className="border border-black" onClick={() => handleRenameDirectory(id)}>Rename</button>
               </div>
 
 
@@ -195,10 +227,10 @@ console.log(dirId)
                 </button>
                 <button className="border border-black"><a href={`${BASE_URL}/file/${id}?action=download`}>Download</a></button>
                 <button className="border border-black" onClick={() => {
-                  handleDelete(id);
+                  handleFileDelete(id);
                 }}>Delete</button>
                 <input className="border border-black" type="text" placeholder="New name" onChange={(e) => setNewFilename(e.target.value)} value={newFilename} />
-                <button className="border border-black" onClick={() => handleRename(id)}>Rename</button>
+                <button className="border border-black" onClick={() => handleFileRename(id)}>Rename</button>
               </div>
 
 
