@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import DirectoryView from "./components/DirectoryView";
+import { DirectoryView, Register, Login } from "./pages";
 
 const router = createBrowserRouter([
   {
@@ -7,9 +7,17 @@ const router = createBrowserRouter([
     element: <DirectoryView />,
   },
   {
+    path: "/register",
+    element: <Register />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
     path: "/folder/:dirId",
     element: <DirectoryView />,
-  },
+  }
 ]);
 
 function App() {

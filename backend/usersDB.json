@@ -1,0 +1,16 @@
+[
+    {
+        "id": "85ccc200-57a8-4c7d-b270-caccec23851d",
+        "name": "Anurag Singh",
+        "email": "anurag@gmail.com",
+        "password": "abcd",
+        "rootDirId": "1cb7c58b-9a0c-4e9a-8ca6-9439eeea8eb7"
+    },
+    {
+        "id": "f4454bb1-d403-4092-ae73-dd145c768066",
+        "name": "Nitin Diwakar ",
+        "email": "nitindiwakar2006@gmail.com",
+        "password": "1234",
+        "rootDirId": "ca58c555-dbb2-463d-89e4-d3af6a3a42f2"
+    }
+]
