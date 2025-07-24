@@ -11,5 +11,5 @@ export {
     DirectoryHeader,
     DirectoryItem,
     DirectoryList,
-    RenameModal
+    RenameModal,
 }

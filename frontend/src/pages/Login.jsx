@@ -121,7 +121,7 @@ const Login = () => {
 
       {/* Link to the login page */}
       <p className="link-text">
-        Don't have an account? <Link to="/register">Login</Link>
+        Don't have an account? <Link to="/register">Register</Link>
       </p>
     </div>
   );

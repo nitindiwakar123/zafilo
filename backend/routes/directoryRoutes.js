@@ -2,20 +2,18 @@ import { readdir, mkdir, writeFile, rename } from "node:fs/promises";
 import express from "express";
 import directoriesData from "../directoriesDB.json" with {type: "json"};
 import filesData from "../filesDB.json" with {type: "json"};
-import usersData from "../usersDB.json" with {type: "json"};
 
 const router = express.Router();
 
 // Directory Operations
 // Serving Directory Content
 router.get("/{:id}", async (req, res, next) => {
-    const { uid } = req.cookies;
-    const userData = usersData.find((user) => user.id === uid);
-    const id = req.params.id || userData.rootDirId;
+    const user = req.user;
+    const id = req.params.id || user.rootDirId;
     try {
-        const directoryData = directoriesData.find((dir) => dir.id === id);
+        const directoryData = directoriesData.find((dir) => dir.id === id && dir.userId === user.id);
         if (!directoryData) {
-            return res.status(404).json({ message: "Folder not found!" });
+            return res.status(404).json({ error: "Folder not found!" });
         }
         const files = directoryData.files?.map((fileId) => {
             return filesData.find((file) => file.id === fileId);
@@ -38,20 +36,19 @@ router.get("/trash", async (req, res) => {
 
 // Create a Directory
 router.post("/{:parentDirId}", async (req, res, next) => {
-    const { uid } = req.cookies;
-    const userData = usersData.find((user) => user.id === uid);
-    const parentDirId = req.params.parentDirId || userData.rootDirId;
+    const user = req.user;
+    const parentDirId = req.params.parentDirId || user.rootDirId;
     const dirname = req.headers.dirname || "New Folder";
     try {
         const directoryData = {
             id: crypto.randomUUID(),
             name: dirname,
             parentDirId,
-            userId: uid,
+            userId: user.id,
             files: [],
             directories: []
         }
-        const parentDir = directoriesData.find((dir) => dir.id === parentDirId);
+        const parentDir = directoriesData.find((dir) => dir.id === parentDirId && dir.userId === user.id);
         if (!parentDir) {
             return res.status(404).json({ message: "Parent Folder not found!" });
         }
@@ -69,8 +66,9 @@ router.post("/{:parentDirId}", async (req, res, next) => {
 router.patch("/:id", async (req, res, next) => {
     const { id } = req.params;
     const { newDirname } = req.body;
+    const user = req.user;
     try {
-        const directoryData = directoriesData.find((dir) => dir.id === id);
+        const directoryData = directoriesData.find((dir) => dir.id === id && dir.userId === user.id);
         if (!directoryData) {
             return res.status(404).json({ message: "Folder not found!" });
         }
@@ -85,8 +83,9 @@ router.patch("/:id", async (req, res, next) => {
 // Delete a Directory
 router.delete("/:id", async (req, res, next) => {
     const { id } = req.params;
+    const user = req.user;
     try {
-        const directoryData = directoriesData.find((dir) => dir.id === id);
+        const directoryData = directoriesData.find((dir) => dir.id === id && dir.userId === user.id);
         if (!directoryData) {
             return res.status(404).json({ message: "Folder not found!" });
         }
