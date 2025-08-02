@@ -5,5 +5,12 @@
         "name": "context.txt",
         "parentDirId": "cfcc2bcc-cd9c-4c9d-bd27-35b98d94b0cc",
         "userId": "c85e2c25-b1ef-4f09-9dc2-b6530b0ae4b1"
+    },
+    {
+        "id": "676f2263-89ec-44cf-992e-17191b5d92a3",
+        "extension": ".png",
+        "name": "video.png",
+        "parentDirId": "1cb7c58b-9a0c-4e9a-8ca6-9439eeea8eb7",
+        "userId": "85ccc200-57a8-4c7d-b270-caccec23851d"
     }
 ]

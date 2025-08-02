@@ -4,8 +4,12 @@
         "name": "root-anurag@gmail.com",
         "parentDirId": null,
         "userId": "85ccc200-57a8-4c7d-b270-caccec23851d",
-        "files": [],
-        "directories": []
+        "files": [
+            "676f2263-89ec-44cf-992e-17191b5d92a3"
+        ],
+        "directories": [
+            "56ba4bc6-3a6c-4147-adb4-c893b8acfb5b"
+        ]
     },
     {
         "id": "548cbf89-3404-44c5-8e06-dce3cdd45b2c",
@@ -25,6 +29,14 @@
         "files": [
             "d6ddf6d4-b134-4822-8943-80ccd68e92fa"
         ],
+        "directories": []
+    },
+    {
+        "id": "56ba4bc6-3a6c-4147-adb4-c893b8acfb5b",
+        "name": "New Folder",
+        "parentDirId": "1cb7c58b-9a0c-4e9a-8ca6-9439eeea8eb7",
+        "userId": "85ccc200-57a8-4c7d-b270-caccec23851d",
+        "files": [],
         "directories": []
     }
 ]

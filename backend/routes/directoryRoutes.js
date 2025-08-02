@@ -2,8 +2,12 @@ import { readdir, mkdir, writeFile, rename } from "node:fs/promises";
 import express from "express";
 import directoriesData from "../directoriesDB.json" with {type: "json"};
 import filesData from "../filesDB.json" with {type: "json"};
+import validateId from "../middlewares/validateIdMiddleware.js";
 
 const router = express.Router();
+
+router.param("id", validateId);
+router.param("parentDirId", validateId);
 
 // Directory Operations
 // Serving Directory Content

@@ -1,15 +1,13 @@
-import ContextMenu from "./ContextMenu";
-import CreateDirectoryModal from "./CreateDirectoryModal";
-import DirectoryHeader from "./DirectoryHeader";
-import DirectoryItem from "./DirectoryItem";
-import DirectoryList from "./DirectoryList";
-import RenameModal from "./RenameModal";
+import Sidebar from "./Sidebar";
+import Navbar from "./Navbar";
+import File from "./File";
+import Folder from "./Folder";
+import DirectoryView from "./DirectoryView";
 
 export {
-    ContextMenu,
-    CreateDirectoryModal,
-    DirectoryHeader,
-    DirectoryItem,
-    DirectoryList,
-    RenameModal,
+    Sidebar,
+    Navbar,
+    File,
+    Folder,
+    DirectoryView
 }

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "../Auth.css";
 
 const Login = () => {
   const BASE_URL = "http://localhost";
@@ -68,62 +67,7 @@ const Login = () => {
   };
 
   return (
-    <div className="container">
-      <h2 className="heading">Login</h2>
-      <form className="form" onSubmit={handleSubmit}>
-
-        {/* Email */}
-        <div className="form-group">
-          <label htmlFor="email" className="label">
-            Email
-          </label>
-          <input
-            // If there's a serverError, add an extra class to highlight border
-            className={`input ${serverError ? "input-error" : ""}`}
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Enter your email"
-            required
-          />
-
-        </div>
-
-        {/* Password */}
-        <div className="form-group">
-          <label htmlFor="password" className="label">
-            Password
-          </label>
-          <input
-            className="input"
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Enter your password"
-            required
-          />
-        </div>
-
-        {/* Absolutely-positioned error message below email field */}
-        {serverError && <span className="error-msg">{serverError}</span>}
-
-        <button
-          type="submit"
-          className={`submit-button ${isSuccess ? "success" : ""}`}
-        >
-          {isSuccess ? "Login Successful" : "Login"}
-        </button>
-      </form>
-
-      {/* Link to the login page */}
-      <p className="link-text">
-        Don't have an account? <Link to="/register">Register</Link>
-      </p>
-    </div>
+  <div>Login</div>
   );
 };
 

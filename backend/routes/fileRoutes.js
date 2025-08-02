@@ -3,36 +3,18 @@ import path from "node:path";
 import express from "express";
 import directoriesData from "../directoriesDB.json" with {type: "json"};
 import filesData from "../filesDB.json" with {type: "json"};
+import validateId from "../middlewares/validateIdMiddleware.js";
 
 const router = express.Router();
 
-// File Operations
-
-// Read File
-router.get("/:id", async (req, res) => {
-    const { id } = req.params;
-    const user = req.user;
-    try {
-        const fileData = filesData.find((file) => file.id === id && file.userId === user.id);
-        if (!fileData) {
-            return res.status(404).json({ message: "File not Found!" });
-        }
-        const fullFilePath = `${process.cwd()}/storage/${id}${fileData.extension}`;
-        if (req.query.action === "download") {
-            res.set("Content-Disposition", `attachment; filename=${fileData.name}`);
-        }
-        return res.status(200).sendFile(fullFilePath);
-    } catch (error) {
-        return res.status(404).json({ message: "File not Found!" });
-    }
-}
-);
+router.param("id", validateId);
+router.param("parentDirId", validateId);
 
 // Upload File
 router.post("/{:parentDirId}", async (req, res, next) => {
     const user = req.user;
     const parentDirId = req.params.parentDirId || user.rootDirId;
-    const { filename } = req.headers || "untitled";
+    const filename = req.body ? req.body.filename : "untitled";
     const id = crypto.randomUUID();
     const extension = path.extname(filename);
     const fullFilename = `${id}${extension}`;
@@ -65,10 +47,33 @@ router.post("/{:parentDirId}", async (req, res, next) => {
     }
 });
 
+// File Operations
+
+// Read File
+router.get("/:id", async (req, res) => {
+    const { id } = req.params;
+    const user = req.user;
+    try {
+        const fileData = filesData.find((file) => file.id === id && file.userId === user.id);
+        if (!fileData) {
+            return res.status(404).json({ message: "File not Found!" });
+        }
+        const fullFilePath = `${process.cwd()}/storage/${id}${fileData.extension}`;
+        if (req.query.action === "download") {
+            return res.status(200).download(fullFilePath, fileData.name);
+        }
+        return res.status(200).sendFile(fullFilePath);
+    } catch (error) {
+        return res.status(404).json({ message: "File not Found!" });
+    }
+}
+);
+
 // Rename File
 router.patch("/:id", async (req, res, next) => {
     const { id } = req.params;
-    const { newFilename } = req.body;
+    const newFilename = req.body ? req.body.newFilename : undefined;
+    if (!newFilename) return res.status(400).json({ error: "Invalid Name!" });
     const user = req.user;
     try {
 
@@ -107,6 +112,7 @@ router.delete("/:id", async (req, res, next) => {
         next(error);
     }
 });
+
 
 
 export default router;
