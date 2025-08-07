@@ -14,7 +14,7 @@ router.param("parentDirId", validateId);
 router.post("/{:parentDirId}", async (req, res, next) => {
     const user = req.user;
     const parentDirId = req.params.parentDirId || user.rootDirId;
-    const filename = req.body ? req.body.filename : "untitled";
+    const filename = req.headers.filename || "untitled";
     const id = crypto.randomUUID();
     const extension = path.extname(filename);
     const fullFilename = `${id}${extension}`;

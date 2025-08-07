@@ -1,16 +1,1 @@
-[
-    {
-        "id": "d6ddf6d4-b134-4822-8943-80ccd68e92fa",
-        "extension": ".txt",
-        "name": "context.txt",
-        "parentDirId": "cfcc2bcc-cd9c-4c9d-bd27-35b98d94b0cc",
-        "userId": "c85e2c25-b1ef-4f09-9dc2-b6530b0ae4b1"
-    },
-    {
-        "id": "676f2263-89ec-44cf-992e-17191b5d92a3",
-        "extension": ".png",
-        "name": "video.png",
-        "parentDirId": "1cb7c58b-9a0c-4e9a-8ca6-9439eeea8eb7",
-        "userId": "85ccc200-57a8-4c7d-b270-caccec23851d"
-    }
-]
+[{"id":"d6ddf6d4-b134-4822-8943-80ccd68e92fa","extension":".txt","name":"context.txt","parentDirId":"cfcc2bcc-cd9c-4c9d-bd27-35b98d94b0cc","userId":"c85e2c25-b1ef-4f09-9dc2-b6530b0ae4b1"},{"id":"676f2263-89ec-44cf-992e-17191b5d92a3","extension":".png","name":"video.png","parentDirId":"1cb7c58b-9a0c-4e9a-8ca6-9439eeea8eb7","userId":"85ccc200-57a8-4c7d-b270-caccec23851d"},{"id":"89d44e82-142a-4eaf-b480-c6989f1802d4","extension":"","name":"untitled","parentDirId":"548cbf89-3404-44c5-8e06-dce3cdd45b2c","userId":"c85e2c25-b1ef-4f09-9dc2-b6530b0ae4b1"},{"id":"db0eb0ee-915c-408e-b4df-1cc65e2c1aa5","extension":"","name":"untitled","parentDirId":"548cbf89-3404-44c5-8e06-dce3cdd45b2c","userId":"c85e2c25-b1ef-4f09-9dc2-b6530b0ae4b1"},{"id":"a1d4f728-0171-46cb-9b1a-28e8dc6476e1","extension":"","name":"untitled","parentDirId":"548cbf89-3404-44c5-8e06-dce3cdd45b2c","userId":"c85e2c25-b1ef-4f09-9dc2-b6530b0ae4b1"},{"id":"c7e7a2f1-f0f7-4990-8453-4faa4f162a42","extension":".png","name":"Screenshot (217).png","parentDirId":"548cbf89-3404-44c5-8e06-dce3cdd45b2c","userId":"c85e2c25-b1ef-4f09-9dc2-b6530b0ae4b1"},{"id":"56fcbf2d-5e99-4206-b60c-24bf5c4a1e96","extension":".png","name":"Screenshot (208).png","parentDirId":"548cbf89-3404-44c5-8e06-dce3cdd45b2c","userId":"c85e2c25-b1ef-4f09-9dc2-b6530b0ae4b1"},{"id":"6fd7641c-783e-4965-b87c-1654f273d39e","extension":".pdf","name":"web.pdf","parentDirId":"548cbf89-3404-44c5-8e06-dce3cdd45b2c","userId":"c85e2c25-b1ef-4f09-9dc2-b6530b0ae4b1"},{"id":"f665218a-33be-4110-841d-36efddd0289f","extension":".zip","name":"09_inspecting-mongodb-data-packates-221193c867e7cf6a239d2b9ff46553f2.zip","parentDirId":"548cbf89-3404-44c5-8e06-dce3cdd45b2c","userId":"c85e2c25-b1ef-4f09-9dc2-b6530b0ae4b1"},{"id":"94eb1fc3-2dc0-492c-8edf-d116de56c803","extension":".js","name":"app.js","parentDirId":"548cbf89-3404-44c5-8e06-dce3cdd45b2c","userId":"c85e2c25-b1ef-4f09-9dc2-b6530b0ae4b1"},{"id":"c680a669-8c40-4cb1-8534-06cd7c88d8da","extension":".png","name":"Screenshot 2025-08-01 122518 (1).png","parentDirId":"548cbf89-3404-44c5-8e06-dce3cdd45b2c","userId":"c85e2c25-b1ef-4f09-9dc2-b6530b0ae4b1"},{"id":"73a21764-507f-4d2f-85c7-410f2a0d3ba9","extension":".png","name":"Screenshot (214).png","parentDirId":"548cbf89-3404-44c5-8e06-dce3cdd45b2c","userId":"c85e2c25-b1ef-4f09-9dc2-b6530b0ae4b1"},{"id":"03d77b9c-22f8-4637-ad2e-e4605788f485","extension":".png","name":"Screenshot (221).png","parentDirId":"548cbf89-3404-44c5-8e06-dce3cdd45b2c","userId":"c85e2c25-b1ef-4f09-9dc2-b6530b0ae4b1"},{"id":"c9a1f254-da8b-49f9-8b5d-3dfa3894e4f0","extension":".xlsx","name":"ms.xlsx","parentDirId":"548cbf89-3404-44c5-8e06-dce3cdd45b2c","userId":"c85e2c25-b1ef-4f09-9dc2-b6530b0ae4b1"},{"id":"2ed30692-d77e-4b5f-8c06-c8b24a29b8cf","extension":".docx","name":"doc.docx","parentDirId":"548cbf89-3404-44c5-8e06-dce3cdd45b2c","userId":"c85e2c25-b1ef-4f09-9dc2-b6530b0ae4b1"}]

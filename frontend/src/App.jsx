@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { Sidebar, Navbar } from "./components";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useState, useEffect } from "react";
 import { setDirectoryData, clearDirectoryData } from "./features/directory/directorySlice";
 import { login, logout } from "./features/auth/authSlice";
@@ -11,6 +11,7 @@ function App() {
   const { dirId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const isRefresh = useSelector((state) => state.refresh.isRefresh);
   const [errorMessage, setErrorMessage] = useState("");
 
   async function getDirectoryItems() {
@@ -65,10 +66,10 @@ function App() {
 
   useEffect(() => {
     getDirectoryItems();
-  }, [dirId]);
+  }, [dirId, isRefresh]);
 
   return (
-    <div className="w-full flex">
+    <div className="w-full h-screen overflow-hidden flex">
       <Sidebar />
       <div className="w-full flex flex-col">
         <Navbar />
