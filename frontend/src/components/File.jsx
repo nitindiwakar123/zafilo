@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from 'react'
-import { FaRegFileVideo } from "react-icons/fa";
-import { BsFileEarmarkPdf, BsFileEarmarkCode, BsFileEarmarkZip, BsFiletypeXlsx, BsFileEarmarkImage, BsFileEarmark, BsFiletypeDocx  } from "react-icons/bs";
+import React, { useEffect, useRef, useState } from 'react'
+import { FaRegFileVideo, FaBars } from "react-icons/fa";
+import { GoFile } from 'react-icons/go';
+import { BsFileEarmarkPdf, BsFiletypeTxt, BsFileEarmarkCode, BsFileEarmarkZip, BsFiletypeXlsx, BsFileEarmarkImage, BsFileEarmark, BsFiletypeDocx, BsThreeDotsVertical } from "react-icons/bs";
+import { setOpenMenu } from "../features/menuContextSlice/menuContextSlice";
+import { useDispatch } from 'react-redux';
 
 function File({
   activeViewType = "grid",
@@ -8,82 +11,87 @@ function File({
   id = "",
 }) {
 
-  const [iconType, setIconType] = useState("alt");
-  const [iconColor, setIconColor] = useState("");
+  const [isImage, setIsImage] = useState(false);
+  const dispatch = useDispatch();
 
-  function getFileIcon(filename) {
-    const ext = filename.split(".").pop().toLowerCase();
+  function getIconConfig(filename) {
+    const ext = filename.includes('.') ? filename.split('.').pop().toLowerCase() : '';
 
-    switch (ext) {
-      case "pdf":
-        setIconColor("text-red-500");
-        return "pdf";
 
-      case "docx":
-        setIconColor("text-custom-cyan");
-        return "docx";
+    const config = {
+      txt: { icon: BsFiletypeTxt },
+      pdf: { icon: BsFileEarmarkPdf, color: "text-red-500" },
+      docx: { icon: BsFiletypeDocx, color: "text-red-500" },
+      xlsx: { icon: BsFiletypeXlsx, color: "text-[#299438]" },
+      png: { icon: BsFileEarmarkImage },
+      jpg: { icon: BsFileEarmarkImage },
+      jpeg: { icon: BsFileEarmarkImage },
+      gif: { icon: BsFileEarmarkImage },
+      mp4: { icon: FaRegFileVideo },
+      mkv: { icon: FaRegFileVideo },
+      mov: { icon: FaRegFileVideo },
+      avi: { icon: FaRegFileVideo },
+      zip: { icon: BsFileEarmarkZip, color: "text-[#4A5568]" },
+      rar: { icon: BsFileEarmarkZip, color: "text-[#4A5568]" },
+      tar: { icon: BsFileEarmarkZip, color: "text-[#4A5568]" },
+      gz: { icon: BsFileEarmarkZip, color: "text-[#4A5568]" },
+      js: { icon: BsFileEarmarkCode, color: "text-green-500" },
+      jsx: { icon: BsFileEarmarkCode },
+      ts: { icon: BsFileEarmarkCode },
+      tsx: { icon: BsFileEarmarkCode },
+      html: { icon: BsFileEarmarkCode },
+      css: { icon: BsFileEarmarkCode },
+      py: { icon: BsFileEarmarkCode },
+      java: { icon: BsFileEarmarkCode },
+    };
 
-      case "xlsx":
-        setIconColor("text-[#299438]");
-        return "xlsx";
-
-      case "png":
-      case "jpg":
-      case "jpeg":
-      case "gif":
-        return "image";
-
-      case "mp4":
-      case "mkv":
-      case "mov":
-      case "avi":
-        return "video";
-
-      case "zip":
-      case "rar":
-      case "tar":
-      case "gz":
-        setIconColor("text-[#4A5568]");
-        return "archive";
-
-      case "js":
-      case "jsx":
-      case "ts":
-      case "tsx":
-      case "html":
-      case "css":
-      case "py":
-      case "java":
-        return "code";
-      default:
-        setIconColor("text-neutral-500")
-        return "alt";
-    }
+    return config[ext] || { icon: GoFile };
   }
 
+  function handleOptions(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = Math.round(rect.left + window.scrollX);
+    const y = Math.round(rect.bottom + window.scrollY);
+    dispatch(setOpenMenu({ type: `itemOption:${id}`, x, y, itemContext: "file", id, name }));
+  }
+
+  const { icon: FileIcon, color } = getIconConfig(name);
+
   useEffect(() => {
-    const icon = getFileIcon(name);
-    setIconType(icon);
-  }, [])
+    const ext = name.includes('.') ? name.split('.').pop().toLowerCase() : '';
+
+    if (["png", "jpeg", "jpg"].includes(ext)) {
+      setIsImage(true);
+    }
+  }, [name]);
 
 
   return (
-    <a href={`http://localhost/file/${id}?action=open`} className={`${activeViewType === "grid" ? "flex-col w-36 py-1" : "flex-row w-full py-2"} px-3 rounded-md bg-[#E5EAF7] flex  items-center gap-2 text-custom-cyan`}>
-      <div className={`${activeViewType === "grid" && "w-32 aspect-[4/2]"} flex items-center  overflow-hidden rounded-md`} >
-        {iconType === "alt" && <BsFileEarmark className={`w-full h-[80%] object-cover ${iconColor}`} />}
-        {iconType === "pdf" && <BsFileEarmarkPdf className={`w-full h-[80%] object-cover ${iconColor}`} />}
-        {iconType === "video" && <FaRegFileVideo className={`w-full h-[80%] object-cover ${iconColor}`} />}
-        {iconType === "archive" && <BsFileEarmarkZip className={`w-full h-[80%] object-cover ${iconColor}`} />}
-        {iconType === "code" && <BsFileEarmarkCode className={`w-full h-[80%] object-cover ${iconColor}`} />}
-        {iconType === "xlsx" && <BsFiletypeXlsx className={`w-full h-[80%] object-cover ${iconColor}`} />}
-        {iconType === "docx" && <BsFiletypeDocx className={`w-full h-[80%] object-cover ${iconColor}`} />}
-        {iconType === "image" && activeViewType === "list" ? <BsFileEarmarkImage className={`w-full h-[80%] object-cover ${iconColor}`} /> : null}
-        {iconType === "image" && activeViewType === "grid" ? <img src={`http://localhost/file/${id}?action=open`} className="h-full w-full object-cover" alt="" /> : null}
-      </div>
-      <span className={`w-full block text-xs ${activeViewType === "grid" && "text-center"} font-medium text-gray-900 truncate`}>{name}</span>
+    <div className={`${activeViewType === "grid" ? "flex-col aspect-[2/1.5] w-46 py-2" : "flex-row w-full py-3"} px-2 rounded-md bg-[#E5EAF7] flex  items-center gap-2 text-custom-cyan relative`}>
 
+      {activeViewType === "grid" && <div href={`http://localhost/file/${id}?action=open`} className={`w-full flex items-center justify-between gap-2`}>
+        {FileIcon && <FileIcon className={`${color && color}`} size={22} />}
+        <span className="w-full blzock capitalize text-[12px] font-semibold text-start text-neutral-800 truncate">{name}</span>
 
-    </a>
+        <button onClick={handleOptions} className={`cursor-pointer hover:bg-neutral-300 rounded-full p-1 transition-colors duration-300`}><BsThreeDotsVertical /></button>
+      </div>}
+
+      {activeViewType === "list" && <a href={`http://localhost/file/${id}?action=open`} className={`w-full flex items-center justify-between gap-2`}>
+        {FileIcon && <FileIcon className={`${color && color}`} size={22} />}
+        <span className={`w-full blzock capitalize text-[12px] font-semibold text-neutral-800 truncate`}>{name}</span>
+
+        <button onClick={handleOptions} className={`cursor-pointer hover:bg-neutral-300 rounded-full p-1 transition-colors duration-300`}><BsThreeDotsVertical /></button>
+      </a>}
+
+      {activeViewType === "grid" && <a href={`http://localhost/file/${id}?action=open`} className={`${activeViewType === "grid" && "w-full h-full aspect-[4/2]"} flex items-center  overflow-hidden rounded-md`} >
+        {isImage && <img src={`http://localhost/file/${id}?action=open`} className='w-full h-full object-cover' />}
+        {!isImage && <FileIcon className={`${color && color} object-cover w-full h-[80%]`} />}
+      </a>
+      }
+
+    </div>
   )
 }
 

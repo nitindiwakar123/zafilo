@@ -6,8 +6,8 @@ import { RiHardDrive3Fill } from "react-icons/ri";
 import { FaRegPlusSquare } from "react-icons/fa";
 import { ContextMenu, ProfileModal } from "../index";
 import { defaultProfileImage } from "../../assets";
-import { useSelector } from 'react-redux';
-
+import { useSelector, useDispatch } from 'react-redux';
+import { setOpenMenu } from "../../features/menuContextSlice/menuContextSlice";
 
 function Navbar() {
 
@@ -19,9 +19,12 @@ function Navbar() {
     const [showContextMenu, setShowContextMenu] = useState(null);
     const [username, setUsername] = useState("Guest");
     const userData = useSelector((state) => state.auth.userData);
+    const userRefresh = useSelector((state) => state.refresh.userRefresh);
     const newButtonRef = useRef();
-    const profileButtonRef = useRef();
     const currentMenuRef = useRef();
+    const profileButtonRef = useRef();
+    const dispatch = useDispatch();
+
 
     useEffect(() => {
         switch (location.pathname) {
@@ -54,67 +57,45 @@ function Navbar() {
         }
     }, [location.pathname])
 
-    function handleContextMenu(e) {
-        console.log("Hello function!");
-        if (e.currentTarget === newButtonRef.current) {
-            // const { bottom, left } = newButtonRef.current.getBoundingClientRect();
-            // console.log({ bottom, left });
-            // setMenuPosition({
-            //     top: Math.round(bottom + window.scrollY),
-            //     left: Math.round(left + window.scrollX)
-            // });
-            setShowContextMenu("create");
-        } else if (e.currentTarget === profileButtonRef.current) {
-            // const { top, left } = profileButtonRef.current.getBoundingClientRect();
-            // setMenuPosition({
-            //     top: Math.ceil(top + window.scrollY),
-            //     left: Math.ceil(left + window.scrollX)
-            // });
-            setShowContextMenu("profile");
-        }
-    }
-
     useEffect(() => {
-        function handleContextMenu(e) {
-            if(!currentMenuRef.current) return;
-            if(e.target !== currentMenuRef.current && !currentMenuRef.current.contains(e.target)) {
-                setShowContextMenu("");
-            }
-        }
-
-        window.addEventListener('mousedown', handleContextMenu);
-
-        return () => {
-            window.removeEventListener('mousedown', handleContextMenu);
-        }
-    }, []);
-
-    useEffect(() => {
+        if(!userData) setUsername("");
         if (userData) {
             const fullname = userData.name.trim().split(" ");
             setUsername(fullname[0]);
         }
 
-    }, [userData])
+    }, [userData]);
+
+
+    function handleContextMenu(e) {
+        if (e.currentTarget === newButtonRef.current) {
+            setShowContextMenu("create");
+        } else if (e.currentTarget === profileButtonRef.current) {
+            setShowContextMenu("profile");
+        }
+    }
+
+
 
 
 
     return (
         <div className='w-full flex justify-between items-center py-2 px-10 font-inter relative'>
 
-            {/* {showContextMenu && userData? <ProfileModal name={userData.name} email={userData.email} />: null} */}
             <div className='flex gap-2 items-center text-custom-cyan relative'>
                 <currentPage.icon />
                 <p className='text-gray-900 relative top-[2px] text-sm font-semibold'>{currentPage.title}</p>
             </div>
+
             <div className='flex gap-5 items-center'>
-                {showContextMenu && <ContextMenu
-                    ref={currentMenuRef}
-                    type={showContextMenu}
-                />}
+
                 <button
-                    ref={newButtonRef}
-                    onClick={handleContextMenu}
+                    onClick={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const x = Math.round(rect.left + window.scrollX);
+                        const y = Math.round(rect.bottom + window.scrollY);
+                        dispatch(setOpenMenu({ type: "create", x, y }));
+                    }}
                     className='flex gap-2 cursor-pointer items-center bg-custom-cyan text-custom-white py-1 px-3 rounded-md'>
                     <FaRegPlusSquare size={20} />
                     <span className='text-xs font-medium'>New</span>
@@ -126,8 +107,12 @@ function Navbar() {
                     </div>
                     <span className="text-gray-900 relative top-[2px] text-sm font-semibold">{username}</span>
                     <button
-                        ref={profileButtonRef}
-                        onClick={handleContextMenu}
+                        onClick={(e) => {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            const x = Math.round(rect.left + window.scrollX);
+                            const y = Math.round(rect.bottom + window.scrollY);
+                            dispatch(setOpenMenu({ type: "profile", x, y }));
+                        }}
                         className='cursor-pointer text-gray-900 rounded-full hover:bg-neutral-200 transition-colors duration-300 flex items-center relative'><RiArrowDropDownLine size={25} className='relative top-[2px]' /></button>
                 </div>
             </div>

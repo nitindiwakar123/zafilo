@@ -17,19 +17,20 @@ function DirectoryView() {
       setFilesList(currentDirectory.files);
     }
 
-  }, [currentDirectory])
+  }, [currentDirectory]);
 
   if (currentDirectory) return (
-    <div className='w-[80%] max-w-[80%] mx-auto py- space-y-5 bg-custom-white font-inter'>
-      <h3 className="text-2xl capitalize">My Drive</h3 >
+    <div className='w-[85%] max-w-[90%] mx-auto py- space-y-5 bg-custom-white font-inter'>
+      
+      <h3 className="text-2xl capitalize">{currentDirectory.name.startsWith("root")? "My Drive": currentDirectory.name}</h3 >
 
       <div className='flex flex-col gap-2'>
         <h4 className='text-md text-neutral-500'>Folders</h4>
 
-        <ul className='flex'>
-          {directoriesList?.map(({ id, name }) => (
-            <li key={id}>
-              <Folder name={name} />
+        <ul className='flex gap-2'>
+          {directoriesList?.map(({ _id, name }) => (
+            <li key={_id}>
+              <Folder name={name} id={_id} />
             </li>
           ))}
         </ul>
@@ -41,7 +42,7 @@ function DirectoryView() {
 
           <div className='flex items-center gap-2 text-neutral-500'>
             <button className={`cursor-pointer rounded-sm p-2 ${activeView === "grid" && "text-custom-cyan bg-custom-bg-gray2"}`} onClick={() => setActiveView("grid")}>
-              {activeView === 'grid'? <IoGrid />: <IoGridOutline />}
+              {activeView === 'grid' ? <IoGrid /> : <IoGridOutline />}
             </button>
             <button className={`cursor-pointer p-2 rounded-sm ${activeView === "list" && "text-custom-cyan bg-custom-bg-gray2"}`} onClick={() => setActiveView("list")}>
               <AiOutlineBars />
@@ -49,10 +50,10 @@ function DirectoryView() {
           </div>
         </div>
 
-        <ul className={`w-full max-h-[400px] mx-auto flex overflow-x-hidden overflow-y-auto ${activeView === "grid" ? "flex-row justify-start flex-wrap " : "flex-col"} gap-2`}>
-          {filesList?.map(({ id, name }) => (
-            <li key={id}>
-              <File activeViewType={activeView} name={name} id={id} />
+        <ul className={`w-full max-h-[400px] mx-auto flex overflow-x-hidden overflow-y-auto ${activeView === "grid" ? "flex-row justify-between flex-wrap space-y-2" : "flex-col"} gap-2`}>
+          {filesList?.map(({ _id, name }) => (
+            <li key={_id}>
+              <File activeViewType={activeView} name={name} id={_id} />
             </li>
           ))}
         </ul>

@@ -33,9 +33,9 @@ try {
     app.use("/file", checkAuth, fileRoutes);
     app.use("/user", userRoutes);
 
-    app.use((err, req, res, next) => {
-        res.status(err.status || 500).json({ message: "Oops! something went wrong." });
-    });
+    // app.use((err, req, res, next) => {
+    //     res.status(err.status || 500).json({ message: "Oops! something went wrong." });
+    // });
 
     app.listen(port, () => {
         console.log("Server Started!");

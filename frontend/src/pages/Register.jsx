@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import "../Auth.css";
+
 
 const Register = () => {
   const BASE_URL = "http://localhost";
@@ -66,7 +68,76 @@ const Register = () => {
   };
 
   return (
-    <></>
+    <div className="container">
+      <h2 className="heading">Register</h2>
+      <form className="form" onSubmit={handleSubmit}>
+        {/* Name */}
+        <div className="form-group">
+          <label htmlFor="name" className="label">
+            Name
+          </label>
+          <input
+            className="input"
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Enter your name"
+            required
+          />
+        </div>
+
+        {/* Email */}
+        <div className="form-group">
+          <label htmlFor="email" className="label">
+            Email
+          </label>
+          <input
+            // If there's a serverError, add an extra class to highlight border
+            className={`input ${serverError ? "input-error" : ""}`}
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Enter your email"
+            required
+          />
+          {/* Absolutely-positioned error message below email field */}
+          {serverError && <span className="error-msg">{serverError}</span>}
+        </div>
+
+        {/* Password */}
+        <div className="form-group">
+          <label htmlFor="password" className="label">
+            Password
+          </label>
+          <input
+            className="input"
+            type="password"
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          className={`submit-button ${isSuccess ? "success" : ""}`}
+        >
+          {isSuccess ? "Registration Successful" : "Register"}
+        </button>
+      </form>
+
+      {/* Link to the login page */}
+      <p className="link-text">
+        Already have an account? <Link to="/login">Login</Link>
+      </p>
+    </div>
   );
 };
 

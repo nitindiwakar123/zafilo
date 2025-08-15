@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import "../Auth.css";
+import { useDispatch } from "react-redux";
+import { refreshUserData, refreshDirectoryData } from "../features/refreshSlice/refreshSlice";
 
 const Login = () => {
   const BASE_URL = "http://localhost";
+  const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
     email: "anurag@gmail.com",
@@ -12,16 +16,13 @@ const Login = () => {
   // serverError will hold the error message from the server
   const [serverError, setServerError] = useState("");
 
-  const [isSuccess, setIsSuccess] = useState(false);
-
   const navigate = useNavigate();
 
-  // Handler for input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Clear the server error as soon as the user starts typing in Email
-    if (name === "email" && serverError) {
+    // Clear the server error as soon as the user starts typing in either field
+    if (serverError) {
       setServerError("");
     }
 
@@ -31,10 +32,8 @@ const Login = () => {
     }));
   };
 
-  // Handler for form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSuccess(false); // reset success if any
 
     try {
       const response = await fetch(`${BASE_URL}/user/login`, {
@@ -42,32 +41,80 @@ const Login = () => {
         body: JSON.stringify(formData),
         headers: {
           "Content-Type": "application/json",
-        },
+        },     
         credentials: "include",
       });
 
       const data = await response.json();
-
       if (data.error) {
-        // Show error below the email field (e.g., "Email already exists")
+        // If there's an error, set the serverError message
         setServerError(data.error);
       } else {
+        // On success, navigate to home or any other protected route
         console.log(data);
-        // Login success
-        setIsSuccess(true);
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
+        navigate("/");
+        dispatch(refreshUserData());
+        dispatch(refreshDirectoryData());
       }
     } catch (error) {
-      // In case fetch fails
       console.error("Error:", error);
       setServerError("Something went wrong. Please try again.");
     }
   };
 
+  // If there's an error, we'll add "input-error" class to both fields
+  const hasError = Boolean(serverError);
+
   return (
-  <div>Login</div>
+    <div className="container">
+      <h2 className="heading">Login</h2>
+      <form className="form" onSubmit={handleSubmit}>
+        {/* Email */}
+        <div className="form-group">
+          <label htmlFor="email" className="label">
+            Email
+          </label>
+          <input
+            className={`input ${hasError ? "input-error" : ""}`}
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+
+        {/* Password */}
+        <div className="form-group">
+          <label htmlFor="password" className="label">
+            Password
+          </label>
+          <input
+            className={`input ${hasError ? "input-error" : ""}`}
+            type="password"
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Enter your password"
+            required
+          />
+          {/* Absolutely-positioned error message below password field */}
+          {serverError && <span className="error-msg">{serverError}</span>}
+        </div>
+
+        <button type="submit" className="submit-button">
+          Login
+        </button>
+      </form>
+
+      {/* Link to the register page */}
+      <p className="link-text">
+        Don't have an account? <Link to="/register">Register</Link>
+      </p>
+    </div>
   );
 };
 

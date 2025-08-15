@@ -1,7 +1,7 @@
 import { Outlet, useNavigate, useParams } from "react-router-dom";
-import { Sidebar, Navbar } from "./components";
+import { Sidebar, Navbar, ContextMenu } from "./components";
 import { useDispatch, useSelector } from "react-redux";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { setDirectoryData, clearDirectoryData } from "./features/directory/directorySlice";
 import { login, logout } from "./features/auth/authSlice";
 
@@ -11,8 +11,9 @@ function App() {
   const { dirId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const isRefresh = useSelector((state) => state.refresh.isRefresh);
+  const refresh = useSelector((state) => state.refresh);
   const [errorMessage, setErrorMessage] = useState("");
+
 
   async function getDirectoryItems() {
     setErrorMessage(""); // clear any existing error
@@ -38,6 +39,7 @@ function App() {
   }
 
   async function getUserData() {
+    console.log("Hello getUserData");
     try {
       const response = await fetch(`${BASE_URL}/user/`, {
         credentials: "include"
@@ -59,20 +61,21 @@ function App() {
     }
   }
 
-
   useEffect(() => {
     getUserData();
-  }, [BASE_URL]);
+  }, [BASE_URL, refresh.userRefresh]);
 
   useEffect(() => {
     getDirectoryItems();
-  }, [dirId, isRefresh]);
+  }, [dirId, refresh.directoryRefresh]);
+
 
   return (
     <div className="w-full h-screen overflow-hidden flex">
       <Sidebar />
       <div className="w-full flex flex-col">
         <Navbar />
+        <ContextMenu />
         <main>
           <Outlet />
         </main>

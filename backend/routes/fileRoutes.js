@@ -1,9 +1,8 @@
 import { open, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import express from "express";
-import directoriesData from "../directoriesDB.json" with {type: "json"};
-import filesData from "../filesDB.json" with {type: "json"};
 import validateId from "../middlewares/validateIdMiddleware.js";
+import { Db, ObjectId } from "mongodb";
 
 const router = express.Router();
 
@@ -12,35 +11,41 @@ router.param("parentDirId", validateId);
 
 // Upload File
 router.post("/{:parentDirId}", async (req, res, next) => {
+    const db = req.db;
+    const filesCollection = db.collection("files");
     const user = req.user;
     const parentDirId = req.params.parentDirId || user.rootDirId;
     const filename = req.headers.filename || "untitled";
-    const id = crypto.randomUUID();
     const extension = path.extname(filename);
-    const fullFilename = `${id}${extension}`;
-    const parentDirData = directoriesData.find((dir) => dir.id === parentDirId && dir.userId === user.id);
-    if (!parentDirData) {
-        return res.status(404).json({ error: "Parent Folder Not Found!" });
-    }
-    const fileHandle = await open(`./storage/${fullFilename}`, "w");
-    const writeStream = fileHandle.createWriteStream();
 
     try {
+        const parentDirData = await db.collection("directories").findOne({ _id: new ObjectId(parentDirId), userId: user._id });
+        if (!parentDirData) {
+            return res.status(404).json({ error: "Parent Folder Not Found!" });
+        }
+
+        const fileData = {
+            name: filename,
+            extension,
+            parentDirId: parentDirData._id,
+            userId: user._id
+        };
+        const createdFile = await filesCollection.insertOne(fileData);
+        const createdFileId = createdFile.insertedId.toString();
+
+        const fullFilename = `${createdFileId}${extension}`;
+        const fileHandle = await open(`./storage/${fullFilename}`, "w");
+        const writeStream = fileHandle.createWriteStream();
         req.pipe(writeStream);
+
         req.on('end', async () => {
-            const fileData = {
-                id,
-                extension,
-                name: filename,
-                parentDirId,
-                userId: user.id
-            };
-            filesData.push(fileData);
-            parentDirData.files.push(fileData.id);
-            await writeFile('./filesDB.json', JSON.stringify(filesData));
-            await writeFile('./directoriesDB.json', JSON.stringify(directoriesData));
             await fileHandle?.close();
             return res.status(201).json({ "message": "File Successfully Uploaded!" });
+        });
+
+        req.on("error", async () => {
+            await filesCollection.deleteOne({ _id: createdFile.insertedId });
+            return res.status(500).json({ "message": "File Upload Cancled!" });
         });
     } catch (error) {
         next(error);
@@ -51,10 +56,11 @@ router.post("/{:parentDirId}", async (req, res, next) => {
 
 // Read File
 router.get("/:id", async (req, res) => {
+    const db = req.db;
     const { id } = req.params;
     const user = req.user;
     try {
-        const fileData = filesData.find((file) => file.id === id && file.userId === user.id);
+        const fileData = await db.collection("files").findOne({ _id: new ObjectId(id), userId: user._id });
         if (!fileData) {
             return res.status(404).json({ message: "File not Found!" });
         }
@@ -71,19 +77,20 @@ router.get("/:id", async (req, res) => {
 
 // Rename File
 router.patch("/:id", async (req, res, next) => {
+    const db = req.db;
+    const filesCollection = db.collection("files");
     const { id } = req.params;
-    const newFilename = req.body ? req.body.newFilename : undefined;
-    if (!newFilename) return res.status(400).json({ error: "Invalid Name!" });
+    const newName = req.body ? req.body.newName : undefined;
+    if (!newName) return res.status(400).json({ error: "Invalid Name!" });
     const user = req.user;
     try {
 
-        const fileData = filesData.find((file) => file.id === id && file.userId === user.id);
+        const fileData = await filesCollection.findOne({ _id: new ObjectId(id), userId: user._id });
         if (!fileData) {
             return res.status(404).json({ message: "File not Found!" });
         }
 
-        fileData.name = newFilename;
-        await writeFile('./filesDB.json', JSON.stringify(filesData));
+        await filesCollection.updateOne({ _id: new ObjectId(id) }, { $set: { name: newName } });
         return res.status(200).json({ message: "File Renamed!" });
     } catch (error) {
         next(error);
@@ -92,21 +99,18 @@ router.patch("/:id", async (req, res, next) => {
 
 // Delete File
 router.delete("/:id", async (req, res, next) => {
+    const db = req.db;
+    const filesCollection = db.collection("files");
     try {
         const { id } = req.params;
         const user = req.user;
-        const fileIndex = filesData.findIndex((file) => file.id === id && file.userId === user.id);
-        const fileData = filesData[fileIndex];
+        const fileData = await filesCollection.findOne({ _id: new ObjectId(id), userId: user._id });
         if (!fileData) {
             return res.status(404).json({ message: "File not Found!" });
         }
         const { extension } = fileData;
         await rename(`./storage/${id}${extension}`, `./trash/${id}${extension}`);
-        filesData.splice(fileIndex, 1);
-        const parentDirData = directoriesData.find((dir) => dir.id === fileData.parentDirId);
-        parentDirData.files = parentDirData.files.filter((fileId) => fileId !== fileData.id);
-        await writeFile('./filesDB.json', JSON.stringify(filesData));
-        await writeFile('./directoriesDB.json', JSON.stringify(directoriesData));
+        await filesCollection.deleteOne({ _id: fileData._id });
         return res.status(200).json({ message: "File Deleted Successfully!" });
     } catch (error) {
         next(error);

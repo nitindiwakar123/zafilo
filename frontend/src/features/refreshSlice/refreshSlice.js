@@ -1,18 +1,22 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    isRefresh: false
+    directoryRefresh: false,
+    userRefresh: false
 }
 
 const refreshSlice = createSlice({
     name: "refresh",
     initialState,
     reducers: {
-        refresh: (state) => {
-            state.isRefresh = !state.isRefresh;
-        } 
+        refreshDirectoryData: (state) => {
+            state.directoryRefresh = !state.directoryRefresh;
+        }, 
+        refreshUserData: (state) => {
+            state.userRefresh = !state.userRefresh;
+        }, 
     }
 });
 
-export const { refresh } = refreshSlice.actions;
+export const { refreshDirectoryData, refreshUserData } = refreshSlice.actions;
 export default refreshSlice.reducer;
