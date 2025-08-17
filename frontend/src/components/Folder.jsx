@@ -26,7 +26,7 @@ function Folder({
         const rect = e.currentTarget.getBoundingClientRect();
         const x = Math.round(rect.left + window.scrollX);
         const y = Math.round(rect.bottom + window.scrollY);
-        dispatch(setOpenMenu({ type: `itemOption:${id}`, x, y, itemContext: "folder", id }));
+        dispatch(setOpenMenu({ type: `itemOption:${id}`, x, y, itemContext: "folder", id, name }));
       }} className={`cursor-pointer hover:bg-neutral-300 rounded-full p-1 transition-colors duration-300`}><BsThreeDotsVertical /></button>
     </div>
   )

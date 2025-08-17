@@ -31,10 +31,10 @@ router.get("/{:id}", async (req, res, next) => {
 });
 
 // Serving Trash Directory Content
-router.get("/trash", async (req, res) => {
-    const contentList = await getDirectoryContent("./trash");
-    res.json(contentList);
-});
+// router.get("/trash", async (req, res) => {
+//     const contentList = await getDirectoryContent("./trash");
+//     res.json(contentList);
+// });
 
 // Create a Directory
 router.post("/{:parentDirId}", async (req, res, next) => {
@@ -81,54 +81,55 @@ router.patch("/:id", async (req, res, next) => {
 });
 
 // Delete a Directory
-// router.delete("/:id", async (req, res, next) => {
-//     const { id } = req.params;
-//     const user = req.user;
-//     try {
-//         const directoryData = directoriesData.find((dir) => dir.id === id && dir.userId === user.id);
-//         if (!directoryData) {
-//             return res.status(404).json({ message: "Folder not found!" });
-//         }
-//         const parentDirData = directoriesData.find((dir) => dir.id === directoryData.parentDirId);
-//         parentDirData.directories = parentDirData.directories.filter((dirId) => dirId !== id);
-//         await deleteDirectory(id);
-//         return res.status(200).json({ "message": "Folder deleted successfully!" });
-//     } catch (error) {
-//         next(error);
-//     }
-// });
+router.delete("/:id", async (req, res, next) => {
+    const { id } = req.params;
+    const user = req.user;
+    const db = req.db;
+    const directoriesCollection = db.collection("directories");
+    const filesCollection = db.collection("files");
 
-// async function getDirectoryContent(path = "") {
-//     const content = await readdir(path, { withFileTypes: true });
-//     const contentList = content.map((item) => {
-//         return { name: item.name, isDirectory: item.isDirectory() }
-//     });
-//     return contentList;
-// }
+    try {
+        const directoryData = await directoriesCollection.findOne({ _id: new ObjectId(id), userId: user._id }, { projection: { _id: 1 } });
+        if (!directoryData) {
+            return res.status(404).json({ message: "Folder not found!" });
+        }
 
-// async function deleteDirectory(dirId) {
-//     const directoryIndex = directoriesData.findIndex((dir) => dir.id === dirId);
-//     if (directoryIndex === -1) return;
-//     const directoryData = directoriesData[directoryIndex];
-//     directoriesData.splice(directoryIndex, 1);
-//     try {
+        const { files: allFiles, directories: allDirectories } = await getDirectoryContent(directoryData._id, db);
 
-//         for (const fileId of directoryData.files) {
-//             const fileIndex = filesData.findIndex((file) => file.id === fileId);
-//             const { extension } = filesData[fileIndex];
-//             await rename(`./storage/${fileId}${extension}`, `./trash/${fileId}${extension}`);
-//             filesData.splice(fileIndex, 1);
-//         }
+        for (const { _id, extension } of allFiles) {
+            const fileId = _id.toString();
+            await rename(`./storage/${fileId}${extension}`, `./trash/${fileId}${extension}`);
+        }
 
-//         for (const dirId of directoryData.directories) {
-//             await deleteDirectory(dirId);
-//         }
+        await filesCollection.deleteMany({
+            _id: { $in: allFiles.map(({ _id }) => _id) }
+        });
 
-//         await writeFile('./filesDB.json', JSON.stringify(filesData));
-//         await writeFile('./directoriesDB.json', JSON.stringify(directoriesData));
-//     } catch (error) {
-//         console.log("deleteDirectory :: error :: ", error);
-//     }
-// }
+        await directoriesCollection.deleteMany({
+            _id: { $in: [...allDirectories.map(({ _id }) => _id), directoryData._id] }
+        });
+
+        return res.status(200).json({ "message": "Folder deleted successfully!" });
+    } catch (error) {
+        next(error);
+    }
+});
+
+async function getDirectoryContent(dirId, db) {
+    const directoriesCollection = db.collection("directories");
+    const filesCollection = db.collection("files");
+
+    let files = await filesCollection.find({ parentDirId: dirId }, { projection: { extension: 1 } }).toArray();
+    let directories = await directoriesCollection.find({ parentDirId: dirId }, { projection: { _id: 1 } }).toArray();
+
+    for (const { _id } of directories) {
+        const { files: childFiles, directories: childDirectories } = await getDirectoryContent(_id, db);
+
+        files = [...files, ...childFiles];
+        directories = [...directories, ...childDirectories];
+    }
+
+    return { files, directories };
+}
 
 export default router;

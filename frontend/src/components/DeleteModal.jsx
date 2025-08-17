@@ -22,9 +22,10 @@ function DeleteModal({ ref }) {
 
 
     async function handleItemDelete() { 
+        console.log("Hello handleItemDelete", currentItem);
         if(!currentItem.id) return;
         try {
-            const response = await fetch(`${BASE_URL}/file/${currentItem.id}`, {
+            const response = await fetch(`${BASE_URL}/${currentItem.type}/${currentItem.id}`, {
                 method: "DELETE",
                 credentials: "include"
             });
