@@ -3,7 +3,9 @@ import { MdAttachEmail, MdOutlineAttachEmail } from "react-icons/md";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { useSelector, useDispatch } from 'react-redux';
 import { BiLogOutCircle } from 'react-icons/bi';
+import { IoSettingsOutline } from 'react-icons/io5';
 import { refreshUserData, refreshDirectoryData } from "../../features/refreshSlice/refreshSlice";
+import { defaultProfileImage } from '../../assets';
 
 function ProfileModal({
     ref
@@ -20,7 +22,7 @@ function ProfileModal({
                 credentials: 'include'
             });
 
-            if(response.ok) {
+            if (response.ok) {
                 dispatch(refreshUserData());
                 dispatch(refreshDirectoryData());
             }
@@ -30,20 +32,28 @@ function ProfileModal({
     }
 
     if (userData) return (
-        <div ref={ref} className='absolute top-2 right-0 shadow-sm shadow-neutral-400 w-[200px] rounded-md overflow-hidden flex flex-col bg-bg-custom-gray'>
-            <div className='flex cursor-pointer hover:text-custom-cyan hover:bg-[#E5EAF7] text-neutral-600 border-b border-b-neutral-300 items-center justify-start gap-2 py-3 transition-colors duration-300 px-2'>
+        <div ref={ref} className='absolute top-2 right-0 px-8 py-5 shadow-sm shadow-neutral-400 w-[340px] rounded-md overflow-hidden flex flex-col gap-2 bg-bg-custom-gray'>
+            <div className='w-full flex items-center gap-5 border-b border-gray-300 pb-4'>
+                <div className='rounded-full overflow-hidden w-16 h-16'>
+                    <img className='w-full h-full object-cover' src={defaultProfileImage} alt="defaultProfileImage" />
+                </div>
+                <div className='flex flex-col justify-center items-start'>
+                    <h4 className='text-xl font-inter font-medium text-gray-900'>{userData.name}</h4>
+                    <p className='text-gray-400 font-sans'>{userData.email}</p>
+                </div>
+            </div>
+            <div className='flex flex-col justify-center items-start gap-1'>
+                <button className='w-full flex items-center gap-2 py-3 px-1 cursor-pointer hover:bg-custom-bg-gray2 rounded-md transition-colors duration-300 text-gray-600'>
+                    <IoSettingsOutline size={20} />
+                    <span className='font-sans text-md font-medium'>Account Settings</span>
+                </button>
+ 
+                <button onClick={handleLogout} className='w-full flex items-center gap-2 py-3 px-1 cursor-pointer hover:bg-custom-bg-gray2 rounded-md transition-colors duration-300 text-gray-600'>
+                    <BiLogOutCircle size={20} />
+                    <span className='font-sans text-md font-medium '>Sign  Out</span>
+                </button>
 
-                <FaRegCircleUser size={18} />
-                <span className='text-[12px] font-inter'>{userData ? userData.name : ""}</span>
             </div>
-            <div className='flex cursor-pointer hover:text-custom-cyan hover:bg-[#E5EAF7] text-neutral-600 justify-start gap-2 items-center py-3 transition-colors duration-300 px-2 border-b border-b-neutral-300'>
-                <MdOutlineAttachEmail size={18} />
-                <span className='text-[12px] font-inter'>{userData ? userData.email : ""}</span>
-            </div>
-            <button className='flex cursor-pointer hover:text-custom-cyan hover:bg-[#E5EAF7] text-neutral-600 justify-start gap-2 items-center py-3 transition-colors duration-300 px-2' onClick={handleLogout}>
-                <BiLogOutCircle size={18} />
-                <span className='text-[12px] font-inter'>Logout</span>
-            </button>
         </div>
     );
 }
