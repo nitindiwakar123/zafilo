@@ -49,7 +49,7 @@ const Register = () => {
       });
 
       const data = await response.json();
-
+console.log(data)
       if (data.error) {
         // Show error below the email field (e.g., "Email already exists")
         setServerError(data.error);

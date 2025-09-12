@@ -20,6 +20,7 @@ function Navbar() {
     const [username, setUsername] = useState("Guest");
     const userData = useSelector((state) => state.auth.userData);
     const userRefresh = useSelector((state) => state.refresh.userRefresh);
+    const profileRefresh = useSelector((state) => state.refresh.profileRefresh);
     const newButtonRef = useRef();
     const currentMenuRef = useRef();
     const profileButtonRef = useRef();
@@ -58,7 +59,7 @@ function Navbar() {
     }, [location.pathname])
 
     useEffect(() => {
-        if(!userData) setUsername("");
+        if (!userData) setUsername("");
         if (userData) {
             const fullname = userData.name.trim().split(" ");
             setUsername(fullname[0]);
@@ -74,9 +75,6 @@ function Navbar() {
             setShowContextMenu("profile");
         }
     }
-
-
-
 
 
     return (
@@ -102,7 +100,7 @@ function Navbar() {
                 </button>
                 <div className='text-gray-900 relative flex items-center gap-1 text-sm font-semibold'>
                     <div className='w-8 h-8 overflow-hidden rounded-full mr-2'>
-                        <img className='w-full h-full object-cover' src={defaultProfileImage} alt="profile" />
+                        <img className='w-full h-full object-cover' src={userData? `http://localhost/user/profile-pic?${profileRefresh}`: defaultProfileImage} alt="profile" />
 
                     </div>
                     <span className="text-gray-900 relative top-[2px] text-sm font-semibold">{username}</span>

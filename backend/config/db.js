@@ -1,17 +1,19 @@
-import { MongoClient } from "mongodb";
+import mongoose from "mongoose";
 
-const url = "mongodb://localhost:27017/storageApp";
-export const client = new MongoClient(url);
+const url = "mongodb://nitin:Nitin2006@localhost:27017/storageApp?replicaSet=myReplicaSet";
 
 export async function connectDB() {
-    await client.connect();
-    console.log("Database Connected!");     
-    const db = client.db();
-    return db;
+    try {
+        await mongoose.connect(url);
+        console.log("Database Connected!");
+    } catch (error) {
+        console.log(error);
+        process.exit(1);
+    }
 }
 
 process.on('SIGINT', async () => {
-    await client.close();
+    await mongoose.disconnect();
     console.log("Database Disconnected!");
     process.exit();
 });

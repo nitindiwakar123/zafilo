@@ -71,12 +71,12 @@ function App() {
 
 
   return (
-    <div className="w-full h-screen overflow-hidden flex">
+    <div className="w-full h-screen flex">
       <Sidebar />
       <div className="w-full flex flex-col">
         <Navbar />
         <ContextMenu />
-        <main>
+        <main className="py-5 px-20">
           <Outlet />
         </main>
       </div>

@@ -20,14 +20,14 @@ function DirectoryView() {
   }, [currentDirectory]);
 
   if (currentDirectory) return (
-    <div className='w-[85%] max-w-[90%] mx-auto py- space-y-5 bg-custom-white font-inter'>
+    <div className='mx-auto space-y-4 font-inter'>
       
-      <h3 className="text-2xl capitalize">{currentDirectory.name.startsWith("root")? "My Drive": currentDirectory.name}</h3 >
+      <h1 className="text-2xl capitalize">{currentDirectory.name.startsWith("root")? "My Drive": currentDirectory.name}</h1 >
 
       <div className='flex flex-col gap-2'>
         <h4 className='text-md text-neutral-500'>Folders</h4>
 
-        <ul className='flex gap-2'>
+        <ul className='flex gap-2 flex-wrap'>
           {directoriesList?.map(({ _id, name }) => (
             <li key={_id}>
               <Folder name={name} id={_id} />

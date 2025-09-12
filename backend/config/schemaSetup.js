@@ -126,6 +126,10 @@ const collectionValidators = [
                     rootDirId: {
                         bsonType: 'objectId',
                         description: 'Root directory reference (ObjectId)'
+                    },
+                    profilePic: {
+                        bsonType: 'string',
+                        description: 'profile picture name'
                     }
                 },
                 additionalProperties: false

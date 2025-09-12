@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     directoryRefresh: false,
-    userRefresh: false
+    userRefresh: false,
+    profileRefresh: Date.now()
 }
 
 const refreshSlice = createSlice({
@@ -15,8 +16,11 @@ const refreshSlice = createSlice({
         refreshUserData: (state) => {
             state.userRefresh = !state.userRefresh;
         }, 
+        refreshProfileImage: (state) => {
+            state.profileRefresh = Date.now();
+        }, 
     }
 });
 
-export const { refreshDirectoryData, refreshUserData } = refreshSlice.actions;
+export const { refreshDirectoryData, refreshUserData, refreshProfileImage } = refreshSlice.actions;
 export default refreshSlice.reducer;

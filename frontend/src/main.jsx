@@ -5,7 +5,7 @@ import App from './App.jsx';
 import store from './store/store.js';
 import { Provider } from "react-redux";
 import { createBrowserRouter, RouterProvider, Route, createRoutesFromElements } from "react-router-dom";
-import { Mydrive, Register, Login, Search, Settings, Notifications } from "./pages";
+import { Mydrive, Register, Login, Search, Settings, Account, Notifications } from "./pages";
 
 
 const router = createBrowserRouter(
@@ -18,6 +18,7 @@ const router = createBrowserRouter(
       <Route path="/settings" element={<Settings />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/my-account" element={<Account />} />
       <Route path="/folder/:dirId" element={<Mydrive />} />
     </Route>
   )

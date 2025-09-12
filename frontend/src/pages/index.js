@@ -4,6 +4,7 @@ import Login from "./Login";
 import Notifications from "./Notifications";
 import Search from "./Search";
 import Settings from "./Settings";
+import Account from "./Account";
 
 export {
     Mydrive,
@@ -11,5 +12,6 @@ export {
     Login,
     Notifications,
     Search,
-    Settings
+    Settings,
+    Account
 }

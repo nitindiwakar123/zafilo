@@ -9,6 +9,7 @@ import ProfileModal from "./Navbar/ProfileModal";
 import Options from "./Options";
 import RenameModal from "./RenameModal";
 import DeleteModal from "./DeleteModal";
+import Button from "./Button";
 
 export {
     Sidebar,
@@ -21,5 +22,6 @@ export {
     ProfileModal,
     Options,
     RenameModal,
-    DeleteModal
+    DeleteModal,
+    Button
 }

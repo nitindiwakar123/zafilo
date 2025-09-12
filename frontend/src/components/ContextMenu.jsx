@@ -15,7 +15,7 @@ function ContextMenu() {
             if (!currentMenuRef.current) return;
             if (e.target !== currentMenuRef.current && !currentMenuRef.current.contains(e.target)) {
                 setCurrentContext("");
-                // dispatch(setOpenMenu(null));
+                dispatch(setOpenMenu(null));
             }
         }
 

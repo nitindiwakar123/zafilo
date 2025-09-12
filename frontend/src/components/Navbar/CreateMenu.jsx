@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { MdOutlineCreateNewFolder, MdOutlineUploadFile, MdCreateNewFolder, MdUploadFile } from "react-icons/md";
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -14,8 +14,30 @@ function CreateMenu({
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isCreateDirectory, setIsCreateDirectory] = useState(false);
-  const [dirName, setDirName] = useState("New Folder");
   const { dirId } = useParams();
+
+  async function handleCreateDirectory(e, dirname) {
+    e.preventDefault();
+    // setErrorMessage("");
+    console.log("Hello handleCreateDirectory!");
+    try {
+      const response = await fetch(`${BASE_URL}/folder/${dirId || ""}`, {
+        method: "POST",
+        headers: {
+          dirname
+        },
+        credentials: "include",
+      });
+
+      const data = await response.json();
+      if (data) {
+        setIsCreateDirectory(false);
+        dispatch(refreshDirectoryData());
+        dispatch(setOpenMenu(null));
+      }
+    } catch (error) {
+    }
+  }
 
 
   async function handleFileUpload(e) {
@@ -38,38 +60,11 @@ function CreateMenu({
     }
   }
 
-  async function handleCreateDirectory(e) {
-    // e.preventDefault();
-    // setErrorMessage("");
-    console.log("Hello handleCreateDirectory!");
-    try {
-      const response = await fetch(`${BASE_URL}/folder/${dirId || ""}`, {
-        method: "POST",
-        headers: {
-          dirname: dirName,
-        },
-        credentials: "include",
-      });
-
-      const data = await response.json();
-      console.log(data);
-      setDirName("New Folder");
-      setIsCreateDirectory(false);
-      dispatch(refreshDirectoryData());
-    } catch (error) {
-    }
-  }
 
   return (
     <div ref={ref} className='absolute top-2 right-[-80px] shadow-sm shadow-neutral-400 w-[200px] rounded-md overflow-hidden flex flex-col bg-bg-custom-gray'>
       {isCreateDirectory &&
-        <div className='w-[300px] py-5 px-4 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-bg-custom-gray shadow-sm shadow-neutral-400 rounded-2xl overflow-hidden flex flex-col gap-4 border border-custom-cyan'>
-          <h4 className='text-2xl font-normal text-gray-900'>Create folder</h4>
-          <input className='text-sm p-2 text-neutral-800 rounded-md border border-neutral-500' type="text" value={dirName} onChange={(e) => setDirName(e.target.value)} />
-          <div className='w-full flex justify-end items-center'>
-            <button className='cursor-pointer bg-custom-cyan py-2 px-4 text-sm rounded-md text-custom-white' onClick={handleCreateDirectory}>Create</button>
-          </div>
-        </div>
+        <CreateDirectory onCreateSubmit={handleCreateDirectory} />
       }
 
       <button onClick={() => {
@@ -84,6 +79,32 @@ function CreateMenu({
         <MdOutlineUploadFile size={18} />
         <span className='text-[12px] font-inter'>File upload</span>
       </button>
+    </div>
+  )
+}
+
+function CreateDirectory({
+  onCreateSubmit
+}) {
+
+  const [dirName, setDirName] = useState("New Folder");
+  const inputRef = useRef();
+
+  useEffect(() => {
+    inputRef.current.focus();
+    inputRef.current.select();
+  }, [])
+
+
+  return (
+    <div className='w-[300px] py-5 px-4 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-bg-custom-gray shadow-sm shadow-neutral-400 rounded-2xl overflow-hidden flex flex-col gap-4 border border-custom-cyan'>
+      <h4 className='text-2xl font-normal text-gray-900'>Create folder</h4>
+      <form onSubmit={(e) => onCreateSubmit(e, dirName)}>
+        <input ref={inputRef} className='text-sm p-2 text-neutral-800 rounded-md border border-neutral-500' type="text" value={dirName} onChange={(e) => setDirName(e.target.value)} />
+        <div className='w-full flex justify-end items-center'>
+          <button type='submit' className='cursor-pointer bg-custom-cyan py-2 px-4 text-sm rounded-md text-custom-white'>Create</button>
+        </div>
+      </form>
     </div>
   )
 }

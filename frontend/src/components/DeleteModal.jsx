@@ -47,7 +47,9 @@ function DeleteModal({ ref }) {
             <h4 className='text-2xl font-normal text-gray-900'>Delete forever?</h4>
             <p className='text-sm text-neutral-500'>"{currentItem.name}" will be deleted forever. This can't be undone.</p>
             <div className='w-full flex justify-end items-center gap-2'>
-                <button className='cursor-pointer py-2 px-4 text-sm rounded-md text-custom-cyan'>Cancel</button>
+                <button onClick={() => {
+                    dispatch(setOpenMenu(null));
+                }} className='cursor-pointer py-2 px-4 text-sm rounded-md text-custom-cyan'>Cancel</button>
                 <button onClick={handleItemDelete} className='cursor-pointer bg-[#b93730] py-2 px-4 text-sm rounded-md text-custom-white'>Delete forever</button>
             </div>
         </div>
