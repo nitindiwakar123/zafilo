@@ -10,7 +10,6 @@ const fileSchema = new Schema(
         },
         extension: {
             type: String,
-            match: /^\.[a-zA-Z0-9_]{2,}$/
         },
         parentDirId: {
             type: Schema.Types.ObjectId,

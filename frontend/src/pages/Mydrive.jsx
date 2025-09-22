@@ -215,7 +215,7 @@ function Mydrive() {
 
 
   return (
-    <div className="w-full bg-custom-white">
+    <div className="w-full">
      <DirectoryView />
     </div>
   );

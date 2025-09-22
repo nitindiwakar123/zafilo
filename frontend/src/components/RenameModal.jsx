@@ -57,7 +57,7 @@ function RenameModal({ ref }) {
     }, [currentItem]);
 
     return (
-        <div ref={ref} className='w-[400px] py-6 px-6 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-bg-custom-gray shadow-sm shadow-neutral-400 rounded-2xl overflow-hidden flex flex-col gap-5 border border-custom-cyan'>
+        <div ref={ref} className='w-[400px] py-6 px-6 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary-dark shadow-sm shadow-neutral-400 rounded-2xl overflow-hidden flex flex-col gap-5 border border-custom-cyan'>
             <h4 className='text-2xl font-normal text-gray-900'>Rename</h4>
             <form onSubmit={handleItemRename}>
                 <input

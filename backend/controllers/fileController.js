@@ -5,6 +5,7 @@ import path from "node:path";
 
 
 export const createFile = async (req, res, next) => {
+    // return res.status(404).json({message: "service not available!"});
     const user = req.user;
     const parentDirId = req.params.parentDirId || user.rootDirId.toString();
     const filename = req.headers.filename || "untitled";
@@ -39,7 +40,9 @@ export const createFile = async (req, res, next) => {
             return res.status(500).json({ "message": "File Upload Cancled!" });
         });
     } catch (error) {
-        console.log(error);
+        if (error.code === 121) {
+            console.log(error.errorResponse.errInfo.details.schemaRulesNotSatisfied[0].propertiesNotSatisfied[0]);
+        }
         next(error);
     }
 }
@@ -48,7 +51,7 @@ export const getFile = async (req, res) => {
     const { id } = req.params;
     const user = req.user;
     try {
-        const fileData = await File.findOne({ _id: id, userId: user._id }, {extension: 1}).lean();
+        const fileData = await File.findOne({ _id: id, userId: user._id }, { extension: 1 }).lean();
         if (!fileData) {
             return res.status(404).json({ message: "File not Found!" });
         }
@@ -73,7 +76,7 @@ export const renameFile = async (req, res, next) => {
         if (!file) {
             return res.status(404).json({ message: "File not Found!" });
         }
-        
+
         file.name = newName;
         await file.save();
         return res.status(200).json({ message: "File Renamed!" });
@@ -84,12 +87,14 @@ export const renameFile = async (req, res, next) => {
 }
 
 export const deleteFile = async (req, res, next) => {
+    console.log("Req is in delete file!")
+
     try {
         const { id } = req.params;
         const user = req.user;
         const file = await File.findOne(
             { _id: id, userId: user._id },
-            {extension: 1}
+            { extension: 1 }
         );
         if (!file) {
             return res.status(404).json({ message: "File not Found!" });
@@ -99,6 +104,33 @@ export const deleteFile = async (req, res, next) => {
         await file.deleteOne();
 
         return res.status(200).json({ message: "File Deleted Successfully!" });
+    } catch (error) {
+        if (error.code === 121) {
+            console.log(error.errorResponse.errInfo.details);
+        }
+        next(error);
+    }
+}
+
+export const deleteFiles = async (req, res, next) => {
+    console.log("Req is in delete files!")
+    const user = req.user;
+    const parentDirId = req.params.parentDirId || user.rootDirId.toString();
+    const files = req.body.files || [];
+    const userId = user._id.toString();
+    if (files.length <= 0) {
+        return res.status(404).json({ message: "files Id not received!" });
+    }
+    try {
+        const isParentDirExists = await Directory.exists({_id: parentDirId, userId});
+        if (!isParentDirExists) return res.status(404).json({ error: "parent folder not found!" });
+
+        for (const { fileId, extension } of files) {
+            await rename(`./storage/${fileId}${extension}`, `./trash/${fileId}${extension}`);
+        }
+
+        await File.deleteMany({ _id: { $in: files.map(({ fileId }) => fileId) }});
+        return res.status(200).json({message: "files deleted successfully!"});
     } catch (error) {
         console.log(error);
         next(error);

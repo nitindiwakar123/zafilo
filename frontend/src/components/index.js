@@ -10,6 +10,9 @@ import Options from "./Options";
 import RenameModal from "./RenameModal";
 import DeleteModal from "./DeleteModal";
 import Button from "./Button";
+import FileUploadProgressLoader from "./mui/FileUploadProgressLoader";
+import ChildFilesView from "./DirectoryView/ChildFilesView";
+import ChildFoldersView from "./DirectoryView/ChildFoldersView";
 
 export {
     Sidebar,
@@ -23,5 +26,8 @@ export {
     Options,
     RenameModal,
     DeleteModal,
-    Button
+    Button,
+    FileUploadProgressLoader,
+    ChildFilesView,
+    ChildFoldersView
 }

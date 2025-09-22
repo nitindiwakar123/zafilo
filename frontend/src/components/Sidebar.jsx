@@ -46,10 +46,10 @@ function Sidebar() {
         setAcitveLink(location.pathname);
     }, [location]);
     return (
-        <div className='w-[220px] h-screen px-2 py-5 max-w-[200px] relative left-0 inset-y-0 bg-[#F6F6F6] border-r border-gray-300'>
+        <div className='hidden lg:block w-[300px] h-screen px-4 py-5 relative left-0 inset-y-0 bg-secodary-dark border border-white/12'>
             <ul className='space-y-2'>
                 {navLinks.map(({ title, link, OutlineIcon, FilledIcon }) => (
-                    <li className={`w-full px-2 py-2 rounded-xl text-md ${activeLink === link ? "text-custom-cyan bg-[#E5EAF7]" : "text-neutral-600"}`} key={title}>
+                    <li className={`w-full px-2 py-2 rounded-xl text-md ${activeLink === link ? "text-custom-white bg-secodary-gray" : "text-text-gray"}`} key={title}>
                         <NavLink to={link} className="flex items-center gap-2">
                             {activeLink === link ? <FilledIcon size={18} /> : <OutlineIcon size={18} />}
                             <span className='font-inter'>{title}</span>

@@ -12,6 +12,7 @@ const userSchema = new Schema(
         email: {
             type: String,
             required: [true, "email is a required field!"],
+            unique: true,
             match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "please enter a valid email!"],
             trim: true
         },
@@ -19,7 +20,7 @@ const userSchema = new Schema(
             type: String,
             required: [true, "password is a required field!"],
             minLength: 8,
-            match: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, "at least 8 characters with upper, lower, number, symbol."]
+            // match: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, "at least 8 characters with upper, lower, number, symbol."]
         },
         rootDirId: {
             type: Schema.Types.ObjectId,

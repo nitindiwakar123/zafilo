@@ -36,26 +36,26 @@ function ProfileModal({
     }
 
     if (userData) return (
-        <div ref={ref} className='absolute top-2 right-0 px-8 py-5 shadow-sm shadow-neutral-400 w-[340px] rounded-md overflow-hidden flex flex-col gap-2 bg-bg-custom-gray'>
-            <div className='w-full flex items-center gap-5 border-b border-gray-300 pb-4'>
+        <div ref={ref} className='absolute top-2 right-0 px-8 py-5 shadow-[0_3px_10px_rgb(0,0,0,0.2)] w-[340px] rounded-md overflow-hidden flex flex-col gap-2 bg-menu-gray'>
+            <div className='w-full flex items-center gap-5 border-b border-white/10 pb-4'>
                 <div className='rounded-full overflow-hidden w-16 h-16'>
                     <img className='w-full h-full object-cover' src={`http://localhost/user/profile-pic?${profileRefresh}`} alt="defaultProfileImage" />
                 </div>
                 <div className='flex flex-col justify-center items-start'>
-                    <h4 className='text-xl font-inter font-medium text-gray-900'>{userData.name}</h4>
-                    <p className='text-gray-400 font-sans'>{userData.email}</p>
+                    <h4 className='text-xl font-inter font-medium text-custom-white'>{userData.name}</h4>
+                    <p className='font-sans text-text-gray'>{userData.email}</p>
                 </div>
             </div>
             <div className='flex flex-col justify-center items-start gap-1'>
                 <button onClick={() => {
                     navigate("/my-account");
                     dispatch(setOpenMenu(null));
-                }} className='w-full flex items-center gap-2 py-3 px-1 cursor-pointer hover:bg-custom-bg-gray2 rounded-md transition-colors duration-300 text-gray-600'>
+                }} className='w-full flex items-center gap-2 py-3 px-1 cursor-pointer hover:bg-secodary-gray rounded-md transition-colors duration-300 text-text-gray hover:text-custom-white'>
                     <IoSettingsOutline size={20} />
                     <span className='font-sans text-md font-medium'>Account Settings</span>
                 </button>
 
-                <button onClick={handleLogout} className='w-full flex items-center gap-2 py-3 px-1 cursor-pointer hover:bg-custom-bg-gray2 rounded-md transition-colors duration-300 text-gray-600'>
+                <button onClick={handleLogout} className='w-full flex items-center gap-2 py-3 px-1 cursor-pointer hover:bg-secodary-gray rounded-md transition-colors duration-300 text-text-gray hover:text-custom-white'>
                     <BiLogOutCircle size={20} />
                     <span className='font-sans text-md font-medium '>Sign  Out</span>
                 </button>

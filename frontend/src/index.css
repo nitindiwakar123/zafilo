@@ -1,15 +1,22 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-
+@import "@fontsource/roboto/300.css";
+@import "@fontsource/roboto/400.css";
+@import "@fontsource/roboto/500.css";
+@import "@fontsource/roboto/700.css";
 
 @theme {
     --default-font-family: "Inter", sans-serif;
     --font-inter: 'Inter', sans-serif;
 
-    --color-custom-cyan:  #497FFF;
+    --color-primary-dark: #1A1918;
+    --color-secodary-dark: #121211;
+    --color-secodary-gray: #44403D;
+    --color-file-hover: #2D2B29;
+    --color-menu-gray: #242321;
+    --color-text-gray: #BBB5AE;
+    --color-custom-cyan: #497FFF;
     --color-custom-white: #FFFFFF;
-    --color-bg-custom-gray: #F6F6F6;
-    --color-custom-bg-gray2: #E5EAF7;
 }
 
 body {

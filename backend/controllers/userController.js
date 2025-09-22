@@ -28,15 +28,9 @@ export const userRegister = async (req, res, next) => {
     const session = await mongoose.startSession();
 
     try {
-        const isExistingEmail = await User.findOne({ email: email }, { _id: 1 }).lean();
-        if (isExistingEmail) return res.status(409).json({
-            error: "User already exists!",
-            message: "A user with this email is already exists!"
-        });
-
         const userId = new mongoose.Types.ObjectId();
 
-        session.startTransaction(); 
+        session.startTransaction();
 
         const userRootDir = await Directory.insertOne({
             name: `root-${email}`,
@@ -60,11 +54,16 @@ export const userRegister = async (req, res, next) => {
     } catch (error) {
         await session.abortTransaction();
         if (error.errors) {
-            const firstError = Object.keys(error.errors)[0]; 
+            const firstError = Object.keys(error.errors)[0];
             const errorMessage = error.errors[firstError].properties.message;
             return res.status(400).json({ error: errorMessage });
-        } if (error.code === 121) {
+        } else if (error.code === 121) {
             return res.status(400).json({ error: "Invalid Credentails!" });
+        } else if (error.code === 11000 && error.keyValue.email) {
+            return res.status(409).json({
+                error: "User already exists!",
+                message: "A user with this email is already exists!"
+            });
         } else {
             next(error);
         }
@@ -79,8 +78,12 @@ export const userLogin = async (req, res, next) => {
     try {
         const userData = await User.findOne({ email, password }, { _id: 1 }).lean();
         if (!userData) return res.status(404).json({ error: "Invalid Credentials!" });
-        const userId = userData._id.toString();
-        res.cookie('uid', userId, {
+        const cookiePayload = {
+            id: userData._id.toString(),
+            expiry: Math.round((Date.now() / 1000) + 10)
+        };
+
+        res.cookie('uid', Buffer.from(JSON.stringify(cookiePayload)).toString('base64url'), {
             httpOnly: true,
             maxAge: 60 * 1000 * 60 * 24 * 7
         });

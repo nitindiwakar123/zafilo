@@ -40,10 +40,10 @@ function DeleteModal({ ref }) {
         }
     }
 
-    if (!menu) return;
+    if (!menu.type.startsWith("delete")) return;
 
     return (
-        <div ref={ref} className='w-[400px] py-6 px-6 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-bg-custom-gray shadow-sm shadow-neutral-400 rounded-2xl overflow-hidden flex flex-col gap-5 border border-custom-cyan'>
+        <div ref={ref} className='w-[400px] py-6 px-6 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary-dark shadow-sm shadow-neutral-400 rounded-2xl overflow-hidden flex flex-col gap-5 border border-custom-cyan'>
             <h4 className='text-2xl font-normal text-gray-900'>Delete forever?</h4>
             <p className='text-sm text-neutral-500'>"{currentItem.name}" will be deleted forever. This can't be undone.</p>
             <div className='w-full flex justify-end items-center gap-2'>

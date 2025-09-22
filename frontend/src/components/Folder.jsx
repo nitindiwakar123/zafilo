@@ -14,10 +14,10 @@ function Folder({
   const navigate = useNavigate();
 
   return (
-    <div onClick={() => navigate(`/folder/${id}`)} className='py-2 cursor-context-menu px-2 rounded-md bg-[#E5EAF7] flex items-center justify-between gap-5 text-custom-cyan'>
+    <div onClick={() => navigate(`/folder/${id}`)} className='py-2 cursor-context-menu px-2 rounded-md bg-secodary-dark flex items-center justify-between gap-5 text-custom-cyan border border-white/12'>
       <div className='flex items-center gap-2'>
         <FaFolder />
-        <span className='text-neutral-800 capitalize text-[12px] font-semibold'>{name}</span>
+        <span className='text-custom-white capitalize text-[12px] font-semibold'>{name}</span>
       </div>
 
       <button onClick={(e) => {
@@ -27,7 +27,7 @@ function Folder({
         const x = Math.round(rect.left + window.scrollX);
         const y = Math.round(rect.bottom + window.scrollY);
         dispatch(setOpenMenu({ type: `itemOption:${id}`, x, y, itemContext: "folder", id, name }));
-      }} className={`cursor-pointer hover:bg-neutral-300 rounded-full p-1 transition-colors duration-300`}><BsThreeDotsVertical /></button>
+      }} className={`cursor-pointer rounded-full p-1 transition-colors duration-300`}><BsThreeDotsVertical /></button>
     </div>
   )
 }

@@ -73,7 +73,7 @@ function App() {
   return (
     <div className="w-full h-screen flex">
       <Sidebar />
-      <div className="w-full flex flex-col">
+      <div className="w-full flex flex-col bg-primary-dark">
         <Navbar />
         <ContextMenu />
         <main className="py-5 px-20">
