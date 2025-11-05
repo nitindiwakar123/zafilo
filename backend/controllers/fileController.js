@@ -5,12 +5,11 @@ import path from "node:path";
 
 
 export const createFile = async (req, res, next) => {
-    // return res.status(404).json({message: "service not available!"});
     const user = req.user;
     const parentDirId = req.params.parentDirId || user.rootDirId.toString();
     const filename = req.headers.filename || "untitled";
     const extension = path.extname(filename);
-
+    console.log({parentDirId, filename});
     try {
         const parentDirData = await Directory.findOne({ _id: parentDirId, userId: user._id }, { _id: 1 }).lean();
         if (!parentDirData) {
@@ -51,13 +50,18 @@ export const getFile = async (req, res) => {
     const { id } = req.params;
     const user = req.user;
     try {
-        const fileData = await File.findOne({ _id: id, userId: user._id }, { extension: 1 }).lean();
+        const fileData = await File.findOne({ _id: id, userId: user._id }, { extension: 1 });
         if (!fileData) {
             return res.status(404).json({ message: "File not Found!" });
         }
         const fullFilePath = `${process.cwd()}/storage/${id}${fileData.extension}`;
         if (req.query.action === "download") {
             return res.status(200).download(fullFilePath, fileData.name);
+        }
+
+        if (req.query.action === "open") {
+            fileData.openedAt = new Date();
+            fileData.save();
         }
         return res.status(200).sendFile(fullFilePath);
     } catch (error) {
@@ -74,12 +78,12 @@ export const renameFile = async (req, res, next) => {
 
         const file = await File.findOne({ _id: id, userId: user._id });
         if (!file) {
-            return res.status(404).json({ message: "File not Found!" });
+            return res.status(404).json({ success: false, message: "File not Found!" });
         }
 
         file.name = newName;
         await file.save();
-        return res.status(200).json({ message: "File Renamed!" });
+        return res.status(200).json({ success: true, data: file });
 
     } catch (error) {
         next(error);
@@ -87,23 +91,22 @@ export const renameFile = async (req, res, next) => {
 }
 
 export const deleteFile = async (req, res, next) => {
-    console.log("Req is in delete file!")
-
+    const { id } = req.params;
     try {
-        const { id } = req.params;
+        console.log({id});
         const user = req.user;
         const file = await File.findOne(
             { _id: id, userId: user._id },
             { extension: 1 }
         );
         if (!file) {
-            return res.status(404).json({ message: "File not Found!" });
+            return res.status(404).json({ success: false, message: "File not Found!" });
         }
         const { extension } = file;
         await rename(`./storage/${id}${extension}`, `./trash/${id}${extension}`);
         await file.deleteOne();
 
-        return res.status(200).json({ message: "File Deleted Successfully!" });
+        return res.status(200).json({ success: true, message: "File Deleted Successfully!" });
     } catch (error) {
         if (error.code === 121) {
             console.log(error.errorResponse.errInfo.details);
@@ -122,17 +125,28 @@ export const deleteFiles = async (req, res, next) => {
         return res.status(404).json({ message: "files Id not received!" });
     }
     try {
-        const isParentDirExists = await Directory.exists({_id: parentDirId, userId});
+        const isParentDirExists = await Directory.exists({ _id: parentDirId, userId });
         if (!isParentDirExists) return res.status(404).json({ error: "parent folder not found!" });
 
         for (const { fileId, extension } of files) {
             await rename(`./storage/${fileId}${extension}`, `./trash/${fileId}${extension}`);
         }
 
-        await File.deleteMany({ _id: { $in: files.map(({ fileId }) => fileId) }});
-        return res.status(200).json({message: "files deleted successfully!"});
+        await File.deleteMany({ _id: { $in: files.map(({ fileId }) => fileId) } });
+        return res.status(200).json({ message: "files deleted successfully!" });
     } catch (error) {
         console.log(error);
+        next(error);
+    }
+}
+
+
+export const getAllFiles = async (req, res, next) => {
+    const user = req.user;
+    try {
+        const allFiles = await File.find({userId: user._id}).lean();
+        return res.status(200).json(allFiles);
+    } catch (error) {
         next(error);
     }
 }

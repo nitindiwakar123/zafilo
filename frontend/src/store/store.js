@@ -3,6 +3,7 @@ import authSlice from "../features/auth/authSlice";
 import directorySlice from "../features/directory/directorySlice";
 import refreshSlice from "../features/refreshSlice/refreshSlice";
 import menuContextSlice from "../features/menuContextSlice/menuContextSlice";
+import currentContextSlice from "../features/currentContext/currentContextSlice";
 
 
 const store = configureStore({
@@ -11,6 +12,7 @@ const store = configureStore({
         directory: directorySlice,
         refresh: refreshSlice,
         menuContext: menuContextSlice,
+        currentContext: currentContextSlice,
     }
 });
 

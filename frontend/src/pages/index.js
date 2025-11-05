@@ -1,17 +1,19 @@
 import Mydrive from "./Mydrive";
 import Register from "./Register";
-import Login from "./Login";
 import Notifications from "./Notifications";
 import Search from "./Search";
 import Settings from "./Settings";
 import Account from "./Account";
+import Auth from "./Auth";
+import Home from "./Home";
 
 export {
     Mydrive,
     Register,
-    Login,
     Notifications,
     Search,
     Settings,
-    Account
+    Account,
+    Auth,
+    Home
 }

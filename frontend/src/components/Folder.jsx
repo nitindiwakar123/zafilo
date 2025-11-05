@@ -14,7 +14,7 @@ function Folder({
   const navigate = useNavigate();
 
   return (
-    <div onClick={() => navigate(`/folder/${id}`)} className='py-2 cursor-context-menu px-2 rounded-md bg-secodary-dark flex items-center justify-between gap-5 text-custom-cyan border border-white/12'>
+    <div onClick={() => navigate(`/my-drive/folder/${id}`)} className='py-2 cursor-context-menu px-2 rounded-md bg-secodary-dark flex items-center justify-between gap-5 text-custom-cyan border border-white/12'>
       <div className='flex items-center gap-2'>
         <FaFolder />
         <span className='text-custom-white capitalize text-[12px] font-semibold'>{name}</span>

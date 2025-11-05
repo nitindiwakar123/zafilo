@@ -98,7 +98,7 @@ function File({
      }}
      >
 
-      {isHover && <input ref={checkBoxRef} className="appearance-none w-5 h-5 absolute bottom-2 right-2 cursor-pointer border border-white bg-transparent rounded-sm outline-none checked:bg-custom-cyan checked:before:content-['✔'] checked:before:text-black checked:before:flex checked:before:items-center checked:before:justify-center text-[12px]" type="checkbox" name="select" id="select-file" onChange={handleSelect}  />}
+      {isHover && <input ref={checkBoxRef} className={`appearance-none w-5 h-5 ${activeViewType === "grid" && "absolute bottom-2 right-2"} cursor-pointer border border-white bg-transparent rounded-sm outline-none checked:bg-custom-cyan checked:before:content-['✔'] checked:before:text-black checked:before:flex checked:before:items-center checked:before:justify-center text-[12px]`} type="checkbox" name="select" id="select-file" onChange={handleSelect}  />}
 
       {activeViewType === "grid" && <div href={`http://localhost/file/${id}?action=open`} className={`w-full flex items-center justify-between gap-2`}>
         {FileIcon && <FileIcon className={`${color && color}`} size={22} />}

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { refreshDirectoryData } from '../features/refreshSlice/refreshSlice';
 import { setOpenMenu } from '../features/menuContextSlice/menuContextSlice';
+import { useDeleteDirectory } from '../hooks/directoryHooks/directoryHooks';
+import { useDeleteFile } from '../hooks/fileHooks/fileHooks';
 
 function DeleteModal({ ref }) {
 
-    const BASE_URL = "http://localhost";
     const [currentItem, setCurrentItem] = useState({
         id: "",
         name: "",
@@ -13,6 +13,15 @@ function DeleteModal({ ref }) {
     });
     const dispatch = useDispatch();
     const menu = useSelector((state) => state.menuContext.openMenu);
+    const parentDirId = useSelector((state) => state.currentContext.currentDirectoryId);
+
+    const deleteDirectoryMutation = useDeleteDirectory(() => {
+        dispatch(setOpenMenu(null));
+    });
+
+    const deleteFileMutation = useDeleteFile(() => {
+        dispatch(setOpenMenu(null));
+    });
 
     useEffect(() => {
         if (!menu.id || !menu.itemContext || !menu.name) return;
@@ -21,24 +30,6 @@ function DeleteModal({ ref }) {
     }, [menu])
 
 
-    async function handleItemDelete() { 
-        console.log("Hello handleItemDelete", currentItem);
-        if(!currentItem.id) return;
-        try {
-            const response = await fetch(`${BASE_URL}/${currentItem.type}/${currentItem.id}`, {
-                method: "DELETE",
-                credentials: "include"
-            });
-
-            if(response.ok) {
-                dispatch(refreshDirectoryData());
-                dispatch(setOpenMenu(null));
-            }
-
-        } catch (error) {
-            console.log("DeleteModal :: handleItemDelete :: error :: ", error);
-        }
-    }
 
     if (!menu.type.startsWith("delete")) return;
 
@@ -50,7 +41,15 @@ function DeleteModal({ ref }) {
                 <button onClick={() => {
                     dispatch(setOpenMenu(null));
                 }} className='cursor-pointer py-2 px-4 text-sm rounded-md text-custom-cyan'>Cancel</button>
-                <button onClick={handleItemDelete} className='cursor-pointer bg-[#b93730] py-2 px-4 text-sm rounded-md text-custom-white'>Delete forever</button>
+                <button onClick={() => {
+                    if (currentItem.type === "folder") {
+                        deleteDirectoryMutation.mutate({ dirId: currentItem.id, parentDirId });
+                    } else if (currentItem.type === "file") {
+                        deleteFileMutation.mutate({fileId: currentItem.id, parentDirId});
+                    } else {
+                        return;
+                    }
+                }} className='cursor-pointer bg-[#b93730] py-2 px-4 text-sm rounded-md text-custom-white'>Delete forever</button>
             </div>
         </div>
     )

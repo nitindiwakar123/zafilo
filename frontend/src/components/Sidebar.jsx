@@ -57,7 +57,6 @@ function Sidebar() {
                     </li>
                 ))}
             </ul>
-            {console.log(activeLink)}
         </div>
         
     )

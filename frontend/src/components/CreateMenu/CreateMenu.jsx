@@ -4,41 +4,16 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { refreshDirectoryData } from "../../features/refreshSlice/refreshSlice";
 import { setOpenMenu } from "../../features/menuContextSlice/menuContextSlice";
-import { FileUploadProgressLoader } from "../index";
+import { FileUploadProgressLoader, CreateDirectoryModal } from "../index";
 
 function CreateMenu({
   ref
 }) {
 
-  const BASE_URL = "http://localhost";
-  const directoryData = useSelector((state) => state.directory.currentDirectory);
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [currentContext, setCurrentContext] = useState("menu");
   const [uploadingFiles, setUploadingFiles] = useState([]);
   const { dirId } = useParams();
-
-  async function handleCreateDirectory(e, dirname) {
-    e.preventDefault();
-    // setErrorMessage("");
-    console.log("Hello handleCreateDirectory!");
-    try {
-      const response = await fetch(`${BASE_URL}/folder/${dirId || ""}`, {
-        method: "POST",
-        headers: {
-          dirname
-        },
-        credentials: "include",
-      });
-
-      const data = await response.json();
-      if (data) {
-        dispatch(refreshDirectoryData());
-        dispatch(setOpenMenu(null));
-      }
-    } catch (error) {
-    }
-  }
 
   async function processNext(queue) {
     const results = [];
@@ -53,11 +28,18 @@ function CreateMenu({
 
     xhr.upload.onprogress = function (event) {
       if (event.lengthComputable) {
+        console.log("onprogrsss filename: ", file.name);
         const percent = (event.loaded / event.total) * 100;
-        setUploadingFiles((prev) => ([...prev, {name: file.name, progress: percent}]));
+        // console.log("uploading files: ", uploadingFiles);
+
         // console.log(`${file.name} upload progress: ${percent.toFixed(2)}%`);
       }
     };
+
+    xhr.onloadstart = function () {
+      setUploadingFiles((prev) => ([...prev, { name: file.name, progress: 0 }]));
+
+    }
 
     xhr.send(file);
 
@@ -94,7 +76,7 @@ function CreateMenu({
   useEffect(() => {
     console.log("uploading files: ", uploadingFiles);
   }, [uploadingFiles])
-  
+
 
   return (
     <div ref={ref} >
@@ -114,34 +96,8 @@ function CreateMenu({
 
       </div>}
 
-      {currentContext === "createFolder" && <CreateDirectory onCreateSubmit={handleCreateDirectory} />}
-      {/* {currentContext === "menu" && <uploadProgress />} */}
-    </div>
-  )
-}
-
-function CreateDirectory({
-  onCreateSubmit
-}) {
-
-  const [dirName, setDirName] = useState("New Folder");
-  const inputRef = useRef();
-
-  useEffect(() => {
-    inputRef.current.focus();
-    inputRef.current.select();
-  }, [])
-
-
-  return (
-    <div className='w-[300px] py-5 px-4 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary-dark shadow-sm shadow-neutral-400 rounded-2xl overflow-hidden flex flex-col gap-4 border border-custom-cyan'>
-      <h4 className='text-2xl font-normal text-gray-900'>Create folder</h4>
-      <form onSubmit={(e) => onCreateSubmit(e, dirName)}>
-        <input ref={inputRef} className='text-sm p-2 text-neutral-800 rounded-md border border-neutral-500' type="text" value={dirName} onChange={(e) => setDirName(e.target.value)} />
-        <div className='w-full flex justify-end items-center'>
-          <button type='submit' className='cursor-pointer bg-custom-cyan py-2 px-4 text-sm rounded-md text-custom-white'>Create</button>
-        </div>
-      </form>
+      {currentContext === "createFolder" && <CreateDirectoryModal />}
+      {/* {currentContext === "menu" && <FileUploadProgressLoader />} */}
     </div>
   )
 }

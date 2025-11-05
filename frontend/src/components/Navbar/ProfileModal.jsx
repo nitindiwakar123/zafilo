@@ -4,7 +4,9 @@ import { FaRegCircleUser } from "react-icons/fa6";
 import { useSelector, useDispatch } from 'react-redux';
 import { BiLogOutCircle } from 'react-icons/bi';
 import { IoSettingsOutline } from 'react-icons/io5';
-import { refreshUserData, refreshDirectoryData, refreshProfileImage } from "../../features/refreshSlice/refreshSlice";
+import { refreshProfileImage } from "../../features/refreshSlice/refreshSlice";
+import { clearDirectoryData } from "../../features/directory/directorySlice";
+import { logout } from "../../features/auth/authSlice";
 import { useNavigate } from 'react-router-dom';
 import { setOpenMenu } from '../../features/menuContextSlice/menuContextSlice';
 
@@ -26,8 +28,8 @@ function ProfileModal({
             });
 
             if (response.ok) {
-                dispatch(refreshUserData());
-                dispatch(refreshDirectoryData());
+                dispatch(logout());
+                dispatch(clearDirectoryData());
                 dispatch(refreshProfileImage());
             }
         } catch (error) {

@@ -66,7 +66,7 @@ function Navbar() {
         <div className='w-full flex justify-between items-center pt-4 pb-1 px-10 font-inter relative'>
 
             <div className='flex items-center gap-4'>
-                <button className='lg:hidden text-text-gray hover:bg-secodary-gray py-2 px-2 rounded-md'>
+                <button className='lg:hidden text-text-gray cursor-pointer hover:bg-secodary-gray py-2 px-2 rounded-md'>
                     <FaBars size={16} />
                 </button>
 

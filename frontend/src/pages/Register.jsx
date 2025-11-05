@@ -35,37 +35,7 @@ const Register = () => {
   };
 
   // Handler for form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSuccess(false); // reset success if any
-
-    try {
-      const response = await fetch(`${BASE_URL}/user/register`, {
-        method: "POST",
-        body: JSON.stringify(formData),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      const data = await response.json();
-console.log(data)
-      if (data.error) {
-        // Show error below the email field (e.g., "Email already exists")
-        setServerError(data.error);
-      } else {
-        // Registration success
-        setIsSuccess(true);
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
-      }
-    } catch (error) {
-      // In case fetch fails
-      console.error("Error:", error);
-      setServerError("Something went wrong. Please try again.");
-    }
-  };
+  
 
   return (
     <div className="container">

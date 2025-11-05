@@ -19,6 +19,23 @@
     --color-custom-white: #FFFFFF;
 }
 
+@layer base {
+    input:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+        -webkit-text-fill-color: #fff !important;
+        /* or your text color */
+        background-color: transparent !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+
+    input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+        -webkit-text-fill-color: #fff !important;
+        background-color: transparent !important;
+    }
+}
+
+
 body {
     overflow: hidden;
 }

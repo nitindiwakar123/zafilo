@@ -12,11 +12,7 @@ const directorySlice = createSlice({
             state.currentDirectory = action.payload;
         },
         clearDirectoryData: (state, action) => {
-            state = {
-                currentDirectoryId: null,
-                directories: null,
-                files: null
-            };
+            state.currentDirectory = null;
         }
     }
 });

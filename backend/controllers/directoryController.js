@@ -1,6 +1,7 @@
 import { rename } from "node:fs/promises";
 import Directory from "../models/directoryModel.js";
 import File from "../models/fileModel.js";
+import { dir } from "node:console";
 
 export const getDirectory = async (req, res, next) => {
     const user = req.user;
@@ -22,7 +23,7 @@ export const getDirectory = async (req, res, next) => {
 export const createDirectory = async (req, res, next) => {
     const user = req.user;
     const parentDirId = req.params.parentDirId || user.rootDirId.toString();
-    const dirname = req.headers.dirname || "New Folder";
+    const dirname = req.body?.dirname || "New Folder";
     try {
         const directoryData = {
             name: dirname,
@@ -34,23 +35,22 @@ export const createDirectory = async (req, res, next) => {
             return res.status(404).json({ message: "Parent Folder not found!" });
         }
 
-        await Directory.insertOne(directoryData);
-
-        return res.status(201).json({ "message": "Folder Successfully Created!" })
+        const createdDirectory = await Directory.insertOne(directoryData);
+        return res.status(201).json({ success: true, data: createdDirectory });
     } catch (error) {
+        console.log({error});
         next(error);
     }
 }
 
 export const renameDirectory = async (req, res, next) => {
     const { id } = req.params;
-    const newName = req.body ? req.body.newName : undefined;
+    const newName = req.body?.newName || undefined;
     if (!newName) return res.status(400).json({ error: "Invalid Name!" });
     const user = req.user;
     try {
-
-        await Directory.updateOne({ _id: id, userId: user._id }, { name: newName });
-        return res.status(200).json({ "message": "Folder renamed successfully!" });
+        const updatedDirectory = await Directory.findByIdAndUpdate(id, { name: newName }, { new: true }).lean();
+        return res.status(200).json({ success: true, data: updatedDirectory });
 
     } catch (error) {
         next(error);
@@ -60,7 +60,7 @@ export const renameDirectory = async (req, res, next) => {
 export const deleteDirectory = async (req, res, next) => {
     const { id } = req.params;
     const user = req.user;
-
+    console.log({id});
     try {
         const directoryData = await Directory.findOne({ _id: id, userId: user._id }, { _id: 1 }).lean();
         if (!directoryData) {
@@ -82,7 +82,7 @@ export const deleteDirectory = async (req, res, next) => {
             _id: { $in: [...allDirectories.map(({ _id }) => _id), directoryData._id] }
         });
 
-        return res.status(200).json({ "message": "Folder deleted successfully!" });
+        return res.status(200).json({ success: true, message: "Folder deleted successfully!" });
     } catch (error) {
         next(error);
     }

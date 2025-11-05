@@ -7,6 +7,8 @@ import userRoutes from "./routes/userRoutes.js";
 import checkAuth from "./middlewares/authMiddleware.js";
 import { connectDB } from "./config/db.js";
 
+const mySecretKey = "zafilo-storage-app-1234$%&";
+
 await connectDB();
 
 const app = express();
@@ -18,7 +20,7 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(cookieParser());
+app.use(cookieParser(mySecretKey));
 
 // Parsing Body into JSON
 app.use(express.json());
@@ -28,6 +30,7 @@ app.use("/file", checkAuth, fileRoutes);
 app.use("/user", userRoutes);
 
 app.use((err, req, res, next) => {
+    console.log({err});
     res.status(err.status || 500).json({ error: err.message });
 });
 

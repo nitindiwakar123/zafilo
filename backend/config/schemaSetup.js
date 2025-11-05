@@ -1,6 +1,9 @@
-import { connectDB, client } from "./db.js";
+import mongoose from "mongoose";
+import { connectDB } from "./db.js";
 
-const db = await connectDB();
+await connectDB()
+
+const db = mongoose.connection.db;
 
 const collections = await db.listCollections().toArray();
 const existing = collections.map((collection) => collection.name);
@@ -38,6 +41,18 @@ const collectionValidators = [
                     userId: {
                         bsonType: 'objectId',
                         description: 'Owner user identifier (ObjectId)'
+                    },
+                    createdAt: {
+                        bsonType: 'date',
+                        description: 'directory creation date'
+                    },
+                    updatedAt: {
+                        bsonType: 'date',
+                        description: 'directory last update date'
+                    },
+                    __v: {
+                        bsonType: 'number',
+                        description: 'for mongoose internal use'
                     }
                 },
                 additionalProperties: false
@@ -81,6 +96,22 @@ const collectionValidators = [
                     userId: {
                         bsonType: 'objectId',
                         description: 'Owner user identifier (ObjectId)'
+                    },
+                    openedAt: {
+                        bsonType: 'date',
+                        description: 'File last opened date'
+                    },
+                    createdAt: {
+                        bsonType: 'date',
+                        description: 'File uploading date'
+                    },
+                    updatedAt: {
+                        bsonType: 'date',
+                        description: 'File last update date'
+                    },
+                    __v: {
+                        bsonType: 'number',
+                        description: 'For mongoose internal use'
                     }
                 },
                 additionalProperties: false
@@ -118,10 +149,7 @@ const collectionValidators = [
                         description: 'Valid email address'
                     },
                     password: {
-                        bsonType: 'string',
-                        minLength: 8,
-                        maxLength: 20,
-                        description: 'String, 8–20 characters'
+                        bsonType: 'string'
                     },
                     rootDirId: {
                         bsonType: 'objectId',
@@ -130,6 +158,18 @@ const collectionValidators = [
                     profilePic: {
                         bsonType: 'string',
                         description: 'profile picture name'
+                    },
+                    createdAt: {
+                        bsonType: 'date',
+                        description: 'user creation date'
+                    },
+                    updatedAt: {
+                        bsonType: 'date',
+                        description: 'user last update date'
+                    },
+                    __v: {
+                        bsonType: 'number',
+                        description: 'For mongoose internal use'
                     }
                 },
                 additionalProperties: false
@@ -155,4 +195,4 @@ for await (const collectionValidator of collectionValidators) {
     }
 }
 
-client.close();
+await mongoose.disconnect();

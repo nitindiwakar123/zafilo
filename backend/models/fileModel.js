@@ -18,6 +18,9 @@ const fileSchema = new Schema(
         userId: {
             type: Schema.Types.ObjectId,
             required: [true, "userId is a required field!"],
+        },
+        openedAt: {
+            type: Schema.Types.Date,
         }
     },
     {

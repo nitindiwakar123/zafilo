@@ -1,87 +1,54 @@
-import { Outlet, useNavigate, useParams } from "react-router-dom";
-import { Sidebar, Navbar, ContextMenu } from "./components";
+import { useParams } from "react-router-dom";
+import { Protected } from "./components";
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useEffect, useRef } from "react";
 import { setDirectoryData, clearDirectoryData } from "./features/directory/directorySlice";
 import { login, logout } from "./features/auth/authSlice";
+import { createBrowserRouter, RouterProvider, Route, createRoutesFromElements } from "react-router-dom";
+import { Mydrive, Search, Settings, Account, Notifications, Auth, Home } from "./pages";
+import { AppLayout, AuthLayout } from "./layouts";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <>
+      {/* Auth Routes (no sidebar/navbar) */}
+      <Route element={(
+        <Protected authentication={false}>
+          <AuthLayout />
+        </Protected>
+      )}>
+        <Route path="/auth" element={<Auth />} />
+      </Route>
+
+      {/* Main App Routes (with sidebar/navbar) */}
+      <Route element={
+        <Protected authentication={true}>
+          <AppLayout />
+        </Protected>
+      }>
+        <Route path="/" element={<Home />} />
+        <Route path="/my-drive" element={<Mydrive />} />
+        <Route path="/my-drive/folder/:dirId" element={<Mydrive />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/my-account" element={<Account />} />
+      </Route >
+    </>
+  )
+);
 
 function App() {
 
-  const BASE_URL = "http://localhost";
   const { dirId } = useParams();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const refresh = useSelector((state) => state.refresh);
-  const [errorMessage, setErrorMessage] = useState("");
-
-
-  async function getDirectoryItems() {
-    setErrorMessage(""); // clear any existing error
-    try {
-      const response = await fetch(`${BASE_URL}/folder/${dirId || ""}`, {
-        credentials: "include",
-      });
-
-      if (response.status === 401) {
-        navigate("/login");
-        return;
-      }
-
-      const data = await response.json();
-      if (data) {
-        dispatch(setDirectoryData(data));
-      } else {
-        dispatch(clearDirectoryData());
-      }
-    } catch (error) {
-      setErrorMessage(error.message);
-    }
-  }
-
-  async function getUserData() {
-    console.log("Hello getUserData");
-    try {
-      const response = await fetch(`${BASE_URL}/user/`, {
-        credentials: "include"
-      });
-
-      const data = await response.json();
-      if (response.status === 401) {
-        dispatch(logout())
-      } else if (response.ok) {
-        console.log(data);
-        dispatch(login(data));
-      } else {
-        // Handle other error statuses if needed
-        setErrorMessage(data.error);
-        console.error("Error fetching user info:", response.status);
-      }
-    } catch (error) {
-      setErrorMessage(error);
-    }
-  }
-
-  useEffect(() => {
-    getUserData();
-  }, [BASE_URL, refresh.userRefresh]);
-
-  useEffect(() => {
-    getDirectoryItems();
-  }, [dirId, refresh.directoryRefresh]);
-
+  const queryClient = new QueryClient();
 
   return (
-    <div className="w-full h-screen flex">
-      <Sidebar />
-      <div className="w-full flex flex-col bg-primary-dark">
-        <Navbar />
-        <ContextMenu />
-        <main className="py-5 px-20">
-          <Outlet />
-        </main>
-      </div>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   )
 }
 
-export default App;
+export default App;   

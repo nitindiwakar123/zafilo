@@ -1,23 +1,29 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useEffect, useRef, useState } from 'react';
 import { ChildFilesView, ChildFoldersView } from "../index";
+import {useDirectoryData} from "../../hooks/directoryHooks/directoryHooks";
+import { useParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setCurrentDirectoryId } from '../../features/currentContext/currentContextSlice';
 
 function DirectoryView() {
 
-  const currentDirectory = useSelector((state) => state.directory.currentDirectory);
-  const directoriesList = currentDirectory?.directories || [];
-  const filesList = currentDirectory?.files || [];
+  const dispatch = useDispatch();
+  const {dirId} = useParams();
+  const {data} = useDirectoryData(dirId);
+  
+  useEffect(() => {
+    if(!data) return;
+    dispatch(setCurrentDirectoryId(dirId? dirId: ""));
+  }, [data])
 
-
-  if (currentDirectory) return (
+  if (data) return (
+ 
     <div className='mx-auto space-y-4 font-inter'>
+      {/* <h1 className="text-2xl capitalize text-custom-white">{currentDirectory.name.startsWith("root") ? "My Drive" : currentDirectory.name}</h1 > */}
 
-      <h1 className="text-2xl capitalize text-custom-white">{currentDirectory.name.startsWith("root") ? "My Drive" : currentDirectory.name}</h1 >
+      <ChildFoldersView directoriesList={data.directories} />
 
-      <ChildFoldersView directoriesList={directoriesList} />
-
-      <ChildFilesView filesList={filesList} />
-
+      <ChildFilesView filesList={data.files} />
 
     </div>
   )

@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
-const url = "mongodb://nitin:Nitin2006@localhost:27017/storageApp?replicaSet=myReplicaSet";
-
 export async function connectDB() {
+    const url = "mongodb://nitin:Nitin2006@localhost:27017/storageApp?replicaSet=myReplicaSet";
+
     try {
         await mongoose.connect(url);
         console.log("Database Connected!");
