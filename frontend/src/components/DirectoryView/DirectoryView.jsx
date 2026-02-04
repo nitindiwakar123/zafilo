@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { ChildFilesView, ChildFoldersView } from "../index";
 import {useDirectoryData} from "../../hooks/directoryHooks/directoryHooks";
 import { useParams } from 'react-router-dom';
@@ -19,7 +19,7 @@ function DirectoryView() {
   if (data) return (
  
     <div className='mx-auto space-y-4 font-inter'>
-      {/* <h1 className="text-2xl capitalize text-custom-white">{currentDirectory.name.startsWith("root") ? "My Drive" : currentDirectory.name}</h1 > */}
+      <h1 className="text-2xl capitalize text-custom-white">{data.name?.startsWith("root") ? "My Drive" : data.name}</h1 >
 
       <ChildFoldersView directoriesList={data.directories} />
 

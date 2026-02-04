@@ -16,11 +16,15 @@ const userSchema = new Schema(
             match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "please enter a valid email!"],
             trim: true
         },
+        authStrategy: {
+            type: String,
+            enum: ['local', 'oidc', 'both'],
+            required: true
+        },
+        oidcId: { type: String },
         password: {
             type: String,
-            required: [true, "password is a required field!"],
-            minLength: 8,
-            // match: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, "at least 8 characters with upper, lower, number, symbol."]
+            required: function () { return this.authStrategy === 'local'; }
         },
         rootDirId: {
             type: Schema.Types.ObjectId,
@@ -28,7 +32,15 @@ const userSchema = new Schema(
         },
         profilePic: {
             type: String,
-            match: /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+        },
+        role: {
+            type: String,
+            enum: ['admin', 'manager', 'user'],
+            default: 'user'
+        },
+        isDeleted: {
+            type: Boolean,
+            default: false
         }
     },
     {

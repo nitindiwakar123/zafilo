@@ -7,6 +7,8 @@ import { defaultProfileImage } from "../../assets";
 import { useSelector, useDispatch } from 'react-redux';
 import { setOpenMenu } from "../../features/menuContextSlice/menuContextSlice";
 import { FaBars } from "react-icons/fa6";
+import { useUserData } from '../../hooks/userHooks/userHooks';
+import { config } from '../../config/config.js';
 
 function Navbar() {
 
@@ -15,11 +17,11 @@ function Navbar() {
         title: "Home",
         icon: IoHomeSharp
     });
-    const [username, setUsername] = useState("Guest");
-    const userData = useSelector((state) => state.auth.userData);
-    const userRefresh = useSelector((state) => state.refresh.userRefresh);
+    const [userName, setUserName] = useState("");
+    const authStatus = useSelector((state) => state.auth.status);
     const profileRefresh = useSelector((state) => state.refresh.profileRefresh);
     const dispatch = useDispatch();
+    const {data} = useUserData();
 
 
     useEffect(() => {
@@ -51,16 +53,14 @@ function Navbar() {
                 });
                 break;
         }
-    }, [location.pathname])
+    }, [location.pathname]);
 
     useEffect(() => {
-        if (!userData) setUsername("");
-        if (userData) {
-            const fullname = userData.name.trim().split(" ");
-            setUsername(fullname[0]);
-        }
+        if(!authStatus || !data) return;
 
-    }, [userData]);
+        const username = data.name.trim().split(" ").shift();
+        setUserName(username);
+    }, [authStatus, data]);
 
     return (
         <div className='w-full flex justify-between items-center pt-4 pb-1 px-10 font-inter relative'>
@@ -90,7 +90,7 @@ function Navbar() {
                     <span className='text-sm font-semibold'>New</span>
                 </button>
                 <div className='text-gray-900 relative flex items-center gap-2 text-sm font-semibold'>
-                    <span className="text-custom-white relative top-[2px] text-sm font-semibold">{username}</span>
+                <span className="text-custom-white relative top-[2px] text-sm font-semibold">{userName}</span>
                     <button className='w-8 h-8 overflow-hidden rounded-full mr-2 cursor-pointer'
                         onClick={(e) => {
                             const rect = e.currentTarget.getBoundingClientRect();
@@ -99,7 +99,7 @@ function Navbar() {
                             dispatch(setOpenMenu({ type: "profile", x, y }));
                         }}
                     >
-                        <img className='w-full h-full object-cover' src={userData ? `http://localhost/user/profile-pic?${profileRefresh}` : defaultProfileImage} alt="profile" />
+                        <img className='w-full h-full object-cover' src={authStatus ? `${config.baseUrl}/user/profile-pic?${profileRefresh}` : defaultProfileImage} alt="profile" />
 
                     </button>
 

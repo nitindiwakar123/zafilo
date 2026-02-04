@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
+import { config } from "./config.js";
 
 export async function connectDB() {
-    const url = "mongodb://nitin:Nitin2006@localhost:27017/storageApp?replicaSet=myReplicaSet";
+    const url = config.dbUrl;
 
     try {
         await mongoose.connect(url);

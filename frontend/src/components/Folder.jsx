@@ -1,4 +1,3 @@
-import React from 'react'
 import { FaFolder } from "react-icons/fa";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { setOpenMenu } from "../features/menuContextSlice/menuContextSlice";
@@ -7,7 +6,9 @@ import { useNavigate } from 'react-router-dom';
 
 function Folder({
   name = "",
-  id = ""
+  id = "",
+  createdDate="",
+  openedDate="",
 }) {
 
   const dispatch = useDispatch();
@@ -28,6 +29,11 @@ function Folder({
         const y = Math.round(rect.bottom + window.scrollY);
         dispatch(setOpenMenu({ type: `itemOption:${id}`, x, y, itemContext: "folder", id, name }));
       }} className={`cursor-pointer rounded-full p-1 transition-colors duration-300`}><BsThreeDotsVertical /></button>
+
+      {(createdDate && openedDate) && <div>
+        <span>{createdDate}</span>
+        <span>{openedDate}</span>
+      </div>}
     </div>
   )
 }

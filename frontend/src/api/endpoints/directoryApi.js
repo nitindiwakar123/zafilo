@@ -2,7 +2,6 @@ import apiClient from "../apiClient";
 
 
 export const getDirectoryDataApi = async (dirId = "") => {
-    console.log({ dirId });
     try {
         const response = await apiClient.get(`/folder/${dirId}`);
         return response.data;

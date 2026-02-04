@@ -4,7 +4,6 @@ import { FiExternalLink } from "react-icons/fi";
 import { FaFileDownload } from "react-icons/fa";
 import { FaAngleRight } from "react-icons/fa6";
 import { useSelector, useDispatch } from 'react-redux';
-import { refreshDirectoryData } from '../../features/refreshSlice/refreshSlice';
 import { setOpenMenu } from '../../features/menuContextSlice/menuContextSlice';
 import { TbFileInfo } from "react-icons/tb";
 import SubMenuCompo from "./SubMenu";
@@ -75,6 +74,8 @@ function Options({
             eventHandler: () => { }
         },
     ];
+
+    if(!menu.type.startsWith("itemOption:")) return null;
 
     return (
         <div ref={ref} className={`shadow-[0_3px_10px_rgb(0,0,0,0.2)] w-[250px] rounded-md overflow-hidden flex flex-col bg-[#242321] border border-white/12 py-2`}>

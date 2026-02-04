@@ -1,11 +1,6 @@
-import { useParams } from "react-router-dom";
 import { Protected } from "./components";
-import { useDispatch, useSelector } from "react-redux";
-import { useState, useEffect, useRef } from "react";
-import { setDirectoryData, clearDirectoryData } from "./features/directory/directorySlice";
-import { login, logout } from "./features/auth/authSlice";
 import { createBrowserRouter, RouterProvider, Route, createRoutesFromElements } from "react-router-dom";
-import { Mydrive, Search, Settings, Account, Notifications, Auth, Home } from "./pages";
+import { Mydrive, Search, Settings, Account, Notifications, Home, SignIn, SignUp, UsersPage } from "./pages";
 import { AppLayout, AuthLayout } from "./layouts";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -18,7 +13,8 @@ const router = createBrowserRouter(
           <AuthLayout />
         </Protected>
       )}>
-        <Route path="/auth" element={<Auth />} />
+        <Route path="/login" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
       </Route>
 
       {/* Main App Routes (with sidebar/navbar) */}
@@ -34,6 +30,7 @@ const router = createBrowserRouter(
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/my-account" element={<Account />} />
+        <Route path="/users" element={<UsersPage />} />
       </Route >
     </>
   )
@@ -41,7 +38,6 @@ const router = createBrowserRouter(
 
 function App() {
 
-  const { dirId } = useParams();
   const queryClient = new QueryClient();
 
   return (

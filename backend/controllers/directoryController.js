@@ -1,7 +1,6 @@
 import { rename } from "node:fs/promises";
 import Directory from "../models/directoryModel.js";
 import File from "../models/fileModel.js";
-import { dir } from "node:console";
 
 export const getDirectory = async (req, res, next) => {
     const user = req.user;

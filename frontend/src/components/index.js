@@ -10,7 +10,6 @@ import Options from "./Options/Options";
 import RenameModal from "./RenameModal";
 import DeleteModal from "./DeleteModal";
 import Button from "./Button";
-import FileUploadProgressLoader from "./mui/FileUploadProgressLoader";
 import ChildFilesView from "./DirectoryView/ChildFilesView";
 import ChildFoldersView from "./DirectoryView/ChildFoldersView";
 import SubMenu from "./Options/SubMenu";
@@ -19,6 +18,8 @@ import Login from "./Login";
 import Signup from "./Signup";
 import Input from "./Input";
 import CreateDirectoryModal from "./CreateMenu/CreateDirectoryModal";
+import UploadingFilesProgress from "./CreateMenu/UploadingFilesProgress";
+import FileViewer from "./FileViewer/FileViewer";
 
 export {
     Sidebar,
@@ -33,7 +34,6 @@ export {
     RenameModal,
     DeleteModal,
     Button,
-    FileUploadProgressLoader,
     ChildFilesView,
     ChildFoldersView,
     SubMenu,
@@ -41,5 +41,7 @@ export {
     Login,
     Signup,
     Input,
-    CreateDirectoryModal
+    CreateDirectoryModal,
+    UploadingFilesProgress,
+    FileViewer
 }

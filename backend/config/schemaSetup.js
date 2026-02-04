@@ -127,8 +127,9 @@ const collectionValidators = [
                     '_id',
                     'name',
                     'email',
-                    'password',
-                    'rootDirId'
+                    'rootDirId',
+                    'authStrategy',
+                    'role'
                 ],
                 properties: {
                     _id: {
@@ -148,6 +149,13 @@ const collectionValidators = [
                         pattern: '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$',
                         description: 'Valid email address'
                     },
+                    authStrategy: {
+                        bsonType: 'string',
+                        enum: ['local', 'oidc', 'both']
+                    },
+                    oidcId: {
+                        bsonType: 'string'
+                    },
                     password: {
                         bsonType: 'string'
                     },
@@ -166,6 +174,14 @@ const collectionValidators = [
                     updatedAt: {
                         bsonType: 'date',
                         description: 'user last update date'
+                    },
+                    role: {
+                        bsonType: 'string',
+                        enum: ['admin', 'manager', 'user'],
+                        description: 'user role in our app'
+                    },
+                    isDeleted: {
+                        bsonType: 'bool',
                     },
                     __v: {
                         bsonType: 'number',
