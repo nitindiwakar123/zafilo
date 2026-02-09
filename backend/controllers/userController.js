@@ -10,10 +10,12 @@ import { sendOtpService } from "../services/sendOtpService.js";
 import OTP from "../models/otpModel.js";
 import { verifyIdToken } from "../services/googleAuthService.js";
 import redisClient from "../config/redisConfig.js";
+import { registerSchema, loginSchema, verifyOtpSchema, sendOtpSchema } from "../validators/authSchema.js";
+import { z } from "zod/v4";
 
 export const getCurrentUser = async (req, res) => {
     const userId = req.user._id;
-    console.log(req.user);
+    // console.log(req.user);
     const user = await User.findById(userId).select('name email role').lean();
     return res.status(200).json({
         success: true, data: {
@@ -43,26 +45,29 @@ export const getCurrentUserProfile = async (req, res) => {
 }
 
 export const userSendOtp = async (req, res, next) => {
-    const email = req.body?.email;
-    if (!email) return res.status(400).json({ success: false, error: "email not recieved!" });
+    const { success, data, error } = sendOtpSchema.safeParse(req.body);
+    if (!success) return res.status(400).json({ success: false, error: z.flattenError(error).fieldErrors });
+
+    const { email } = data;
     try {
         const result = await sendOtpService(email);
-        return res.status(201).json(result);
+        return res.status(result.success ? 201 : 500).json(result);
     } catch (error) {
         next(error);
     }
 }
 
 export const registerVerifyOtp = async (req, res, next) => {
-    const email = req.body?.email;
-    const enteredOtp = req.body?.otp;
-    console.log({enteredOtp});
-    if (!email || !enteredOtp) return res.status(400).json({ success: false, error: "OTP is not valid!" });
+    const { success, data } = verifyOtpSchema.safeParse(req.body);
+    if (!success) return res.status(400).json({ success: false, error: "OTP is not valid!" });
+
+    const { email, otp: enteredOtp } = data;
+
     try {
         const sentOtp = await Otp.findOne({ email, otp: enteredOtp }).lean();
-        console.log({sentOtp});
+        console.log({ sentOtp });
         if (!sentOtp) {
-            return res.status(400).json({ success: false, error: "otp is not valid or expired!" })
+            return res.status(400).json({ success: false, error: "OTP is not valid or expired!" })
         }
         return res.status(200).json({ success: true, message: "email verified successfully!" });
     } catch (error) {
@@ -71,14 +76,14 @@ export const registerVerifyOtp = async (req, res, next) => {
 }
 
 export const loginVerifyOtp = async (req, res, next) => {
-    const email = req.body?.email;
-    const enteredOtp = req.body?.otp;
-    if (!email || !enteredOtp) return res.status(400).json({ success: false, error: "OTP is not valid!" });
-    console.log("Hello login verify otp!");
+    const { success, data } = verifyOtpSchema.safeParse(req.body);
+    if (!success) return res.status(400).json({ success: false, error: "OTP is not valid!" });
+
+    const { email, otp: enteredOtp } = data;
     try {
         const sentOtp = await Otp.findOne({ email, otp: enteredOtp }).lean();
         if (!sentOtp) {
-            return res.status(400).json({ success: false, error: "otp is not valid or expired!" })
+            return res.status(400).json({ success: false, error: "OTP is not valid or expired!" })
         }
 
         const userData = await User.findOne({ email }).select("isDeleted rootDirId role").lean();
@@ -108,21 +113,20 @@ export const loginVerifyOtp = async (req, res, next) => {
 }
 
 export const userRegister = async (req, res, next) => {
-    const email = req.body?.email;
-    const name = req.body?.name;
-    const password = req.body?.password;
-    const otp = req.body?.otp;
+    const { success, data, error } = registerSchema.safeParse(req.body);
+    if (!success) {
+        console.log(z.flattenError(error).fieldErrors);
+        return res.status(400).json({ success: false, error: z.flattenError(error).fieldErrors });
+    }
 
-    console.log(req.body);
-
-    if (!email || !name || !password || !otp) return res.status(404).json({ success: false, error: "Name or email or password not valid!" });
+    const { email, password, name, otp } = data;
 
     const session = await mongoose.startSession();
 
     try {
         const otpRecord = await OTP.findOne({ email, otp });
 
-        console.log({otpRecord});
+        console.log({ otpRecord });
         if (!otpRecord) {
             return res.status(400).json({ error: "Invalid or Expired OTP!" });
         }
@@ -197,11 +201,14 @@ export const userRegister = async (req, res, next) => {
 }
 
 export const userLogin = async (req, res, next) => {
-    const email = req.body?.email;
-    const password = req.body?.password;
     const MAX_DEVICES = 2;
+    const { success, data } = loginSchema.safeParse(req.body);
+
+    if (!success) {
+        return res.status(404).json({ success: false, error: "Invalid credentials!" });
+    }
+    const { email, password } = data;
     console.log({ email, password });
-    if (!email || !password) return res.status(404).json({ success: false, error: "email or password is not valid!" });
     try {
 
         const userData = await User.findOne({ email }, { _id: 1, password: 1, isDeleted: 1 }).lean();
@@ -311,7 +318,7 @@ export const googleAuth = async (req, res, next) => {
         const { name, email, picture, sub } = userData;
         const userExist = await User.findOne({ email }).select("_id isDeleted authStrategy rootDirId role");
         // console.log({userExist});
-        if (userExist.isDeleted === true) {
+        if (userExist?.isDeleted === true) {
             userExist.isDeleted = false;
             userExist.name = name;
             const current = userData.authStrategy;
@@ -369,7 +376,7 @@ export const googleAuth = async (req, res, next) => {
 
         await redisClient.hSet(redisKey, session);
         await redisClient.expire(redisKey, 60 * 60 * 24 * 7);
-        
+
         res.cookie('sid', sessionId, {
             httpOnly: true,
             signed: true,

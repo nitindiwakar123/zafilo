@@ -3,14 +3,14 @@ import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import File from "../models/fileModel.js";
 import mongoose from "mongoose";
+import redisClient from "../config/redisConfig.js";
+import getAllSessionsHashes from "../utils/getAllSessionsHashes.mjs";
 
 export const getAllUsers = async (req, res, next) => {
     try {
         const usersList = await User.find().select("name email").lean();
-        const allSessions = (await Session.find().select("-_id userId")).map(({ userId }) => userId.toString());
-        // console.log({allSessions});
+        const allSessions = await getAllSessionsHashes();
         const allSessionsSet = new Set(allSessions);
-        // console.log({allSessionsSet})
         const usersData = usersList.map(({ _id, name, email, role }) => ({ id: _id, name, email, isLoggedIn: allSessionsSet.has(_id.toString()) }));
         res.json(usersData);
     } catch (error) {

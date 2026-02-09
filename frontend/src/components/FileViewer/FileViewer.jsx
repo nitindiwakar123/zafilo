@@ -113,6 +113,12 @@ function FileViewer({
           </div>
         }
 
+        {ext === "html" && (
+          <div className="flex justify-center items-center h-full">
+            <iframe className="grow w-full" src={`${config.baseUrl}/file/${file._id}?action=open`} />
+          </div>
+        )}
+
       </div>
 
     </div>
