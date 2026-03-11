@@ -109,6 +109,10 @@ const collectionValidators = [
                         bsonType: 'date',
                         description: 'File last update date'
                     },
+                    size: {
+                        bsonType: 'number',
+                        description: 'File size in bytes'
+                    },
                     __v: {
                         bsonType: 'number',
                         description: 'For mongoose internal use'

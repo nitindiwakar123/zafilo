@@ -1,15 +1,22 @@
 import Directory from "../models/directoryModel.js";
 import File from "../models/fileModel.js";
-import { open, readFile, rename } from "node:fs/promises";
+import { open, readFile, rename, stat } from "node:fs/promises";
 import path from "node:path";
 import mime from "mime-types";
+import { pipeline } from "node:stream/promises";
 import XLSX from "xlsx";
+import mongoose from "mongoose";
 
 export const createFile = async (req, res, next) => {
     const user = req.user;
     const parentDirId = req.params.parentDirId || user.rootDirId.toString();
     const filename = req.headers.filename || "untitled";
     const extension = path.extname(filename);
+    const fileId = new mongoose.Types.ObjectId();
+    const fullFilename = `${fileId}${extension}`;
+    const filePath = `./storage/${fullFilename}`;
+    const fileHandle = await open(filePath, "w");
+
     console.log({ parentDirId, filename });
     try {
         const parentDirData = await Directory.findOne({ _id: parentDirId, userId: user._id }, { _id: 1 }).lean();
@@ -17,33 +24,30 @@ export const createFile = async (req, res, next) => {
             return res.status(404).json({ success: false, error: "Parent Folder Not Found!" });
         }
 
+        const writeStream = fileHandle.createWriteStream();
+
+        await pipeline(req, writeStream);
+
+        const { size } = await stat(filePath);
         const fileData = {
+            _id: fileId,
             name: filename,
             extension,
             parentDirId: parentDirData._id,
-            userId: user._id
+            userId: user._id,
+            size
         };
         const createdFile = await File.insertOne(fileData);
-        const createdFileId = createdFile.id;
-        const fullFilename = `${createdFileId}${extension}`;
-        const fileHandle = await open(`./storage/${fullFilename}`, "w");
-        const writeStream = fileHandle.createWriteStream();
-        req.pipe(writeStream);
 
-        req.on('end', async () => {
-            await fileHandle?.close();
-            return res.status(201).json({ success: true, "message": "File Successfully Uploaded!", data: createdFile });
-        });
-
-        req.on("error", async () => {
-            await File.deleteOne({ _id: createdFileId });
-            return res.status(500).json({ success: false, "message": "File Upload Cancled!" });
-        });
+        return res.status(201).json({ success: true, "message": "File Successfully Uploaded!", data: createdFile });
     } catch (error) {
+        await unlink(filePath).catch(() => { });
         if (error.code === 121) {
             console.log(error.errorResponse.errInfo.details.schemaRulesNotSatisfied[0].propertiesNotSatisfied[0]);
         }
         next(error);
+    } finally {
+        await fileHandle?.close();
     }
 }
 
@@ -57,7 +61,7 @@ export const getFile = async (req, res) => {
         }
         const fullFilePath = `${process.cwd()}/storage/${id}${fileData.extension}`;
         if (req.query.action === "download") {
-            console.log({fileData});
+            console.log({ fileData });
             return res.status(200).download(fullFilePath, fileData.name);
         }
 

@@ -21,6 +21,9 @@ const fileSchema = new Schema(
         },
         openedAt: {
             type: Schema.Types.Date,
+        },
+        size: {
+           type: Number 
         }
     },
     {

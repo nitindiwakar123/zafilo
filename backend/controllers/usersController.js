@@ -23,7 +23,7 @@ export const logoutById = async (req, res, next) => {
     const targetId = req.params?.id;
     const actor = req.user;
     try {
-        console.log({ actor: actor.name, role: actor.role });
+        console.log({ role: actor.role });
         if (actor.role !== "admin") {
             console.log("Inside the check for admin!");
             const targetUser = await User.findById(targetId).select("role").lean();
@@ -31,7 +31,13 @@ export const logoutById = async (req, res, next) => {
 
             if (targetUser.role === "admin") return res.status(403).json({ success: false, message: "illegal operation you cannot logout admin!", error: "illegal operation" });
         }
-        await Session.deleteMany({ userId: targetId });
+        const allSessions = await redisClient.ft.search("userIdIdx",
+            `@userId:{${targetId}}`,
+            {
+                RETURN: []
+            });
+        console.log({ allSessions: allSessions.documents });
+        allSessions.documents.forEach(async ({id}) => await redisClient.del(id));
         return res.status(200).json({ success: true, message: `all sessions is deleted by ${actor.role}!` });
     } catch (error) {
         console.log({ error });
@@ -41,19 +47,19 @@ export const logoutById = async (req, res, next) => {
 
 export const deleteById = async (req, res, next) => {
     const targetId = req.params?.id;
-    if(!targetId) return res.status(400).json({success: false, message: "Target id not recieved!", error: "Id not recieved!"});
+    if (!targetId) return res.status(400).json({ success: false, message: "Target id not recieved!", error: "Id not recieved!" });
 
     const actor = req.user;
-    if(actor.role !== 'admin') return res.status(403).json({success: false, message: "Illegal operation you cannot delete a user!", error: "Illegal operation!"});
+    if (actor.role !== 'admin') return res.status(403).json({ success: false, message: "Illegal operation you cannot delete a user!", error: "Illegal operation!" });
 
-    if(actor._id.toString() === targetId) return res.status(403).json({success: false, message: "Illegal operation you cannot delete yourself!", error: "Illegal operation!"});
+    if (actor._id.toString() === targetId) return res.status(403).json({ success: false, message: "Illegal operation you cannot delete yourself!", error: "Illegal operation!" });
 
     try {
         // Soft delete
-        await User.findByIdAndUpdate(targetId, {isDeleted: true});
-        await Session.deleteMany({userId: targetId});
+        await User.findByIdAndUpdate(targetId, { isDeleted: true });
+        await Session.deleteMany({ userId: targetId });
 
-        return res.status(204).json({success: true, message: "User deleted successfully!"});
+        return res.status(204).json({ success: true, message: "User deleted successfully!" });
     } catch (error) {
         next(error);
     }

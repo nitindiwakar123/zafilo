@@ -20,6 +20,7 @@ import Input from "./Input";
 import CreateDirectoryModal from "./CreateMenu/CreateDirectoryModal";
 import UploadingFilesProgress from "./CreateMenu/UploadingFilesProgress";
 import FileViewer from "./FileViewer/FileViewer";
+import FileDetails from "./FileDetails";
 
 export {
     Sidebar,
@@ -43,5 +44,6 @@ export {
     Input,
     CreateDirectoryModal,
     UploadingFilesProgress,
-    FileViewer
+    FileViewer,
+    FileDetails
 }

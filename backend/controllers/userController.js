@@ -230,7 +230,7 @@ export const userLogin = async (req, res, next) => {
                 RETURN: []
             }
         );
-        console.log({ allSessions });
+        // console.log({ allSessions });
         if (allSessions.total >= MAX_DEVICES) {
             await redisClient.del(allSessions.documents[0].id);
         }

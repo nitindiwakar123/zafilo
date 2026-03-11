@@ -71,7 +71,10 @@ function Options({
         {
             title: "File Details",
             icon: TbFileInfo,
-            eventHandler: () => { }
+            eventHandler: () => {
+                if (!menu.id) return;
+                dispatch(setOpenMenu({ type: `file-details:${menu.id}`, x: 0, y: 0, itemContext: menu.itemContext, id: menu.id, name: menu.name }));
+            },
         },
     ];
 

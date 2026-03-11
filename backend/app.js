@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import directoryRoutes from "./routes/directoryRoutes.js";
 import fileRoutes from "./routes/fileRoutes.js";
@@ -21,6 +22,12 @@ app.use(cors({
     credentials: true,
 }));
 
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginOpenerPolicy: {policy: 'same-origin-allow-popups'},
+    crossOriginResourcePolicy: { policy: 'same-site' },
+    xFrameOptions: false,
+}));
 app.use(cookieParser(config.sessionSecret));
 
 // Parsing Body into JSON
@@ -32,7 +39,7 @@ app.use("/users", checkAuth, checkIsUserDeleted, usersRoutes);
 app.use("/user", userRoutes);
 
 app.use((err, req, res, next) => {
-    console.log({err});
+    console.log({ err });
     res.status(err.status || 500).json({ success: false, error: err.message });
 });
 
