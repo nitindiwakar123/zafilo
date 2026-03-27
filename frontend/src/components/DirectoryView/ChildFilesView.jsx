@@ -6,6 +6,7 @@ import { MdOutlineDelete } from "react-icons/md";
 import { useParams } from "react-router-dom";
 import { useDeleteFiles } from "../../hooks/fileHooks/fileHooks";
 import { FileViewer } from "../index";
+import { formatBytes } from "../ItemDetails";
 
 function ChildFilesView({
     filesList = []
@@ -46,7 +47,7 @@ function ChildFilesView({
 
             <ul className={`w-full max-h-[400px] mx-auto flex overflow-x-hidden overflow-y-auto ${activeView === "grid" ? "flex-row justify-start flex-wrap space-y-2" : "flex-col"} gap-2`}>
                 {filesList?.map((file) => (
-                    <li key={file._id}>
+                    <li key={file._id} title={`Size: ${formatBytes(file.size)}`}>
                         <File activeViewType={activeView} name={file.name} id={file._id} checkedFiles={checkedFiles} setCheckedFiles={setCheckedFiles} onFileClick={() => setOpenedFile(file)} />
                     </li>
                 ))}

@@ -31,12 +31,11 @@ function File({
   }
 
   function handleSelect(e) {
-    const ext = name.includes('.') ? `.${name.split('.').pop().toLowerCase()}` : '';
     if (e.target.checked) {
-      setCheckedFiles((prev) => ([...prev, { fileId: id, extension: ext }]));
+      setCheckedFiles((prev) => ([...prev, id]));
     } else {
       if (checkedFiles.length <= 0) return;
-      const newCheckedFiles = checkedFiles.filter(({ fileId }) => fileId !== id);
+      const newCheckedFiles = checkedFiles.filter((fileId) => fileId !== id);
       setCheckedFiles(newCheckedFiles);
     }
   }

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { CreateMenu, ProfileModal, Options, RenameModal, DeleteModal, FileDetails } from "./index";
+import { CreateMenu, ProfileModal, Options, RenameModal, DeleteModal, ItemDetails } from "./index";
 import { useSelector, useDispatch } from 'react-redux';
 import { createPortal } from 'react-dom';
 import { setOpenMenu } from '../features/menuContextSlice/menuContextSlice';
@@ -49,7 +49,7 @@ function ContextMenu() {
             {currentContext?.startsWith("itemOption:") && <Options ref={currentMenuRef} />}
             {currentContext?.startsWith("rename:") && <RenameModal ref={currentMenuRef} />}
             {currentContext?.startsWith("delete:") && <DeleteModal ref={currentMenuRef} />}
-            {currentContext?.startsWith("file-details:") && <FileDetails ref={currentMenuRef} />}
+            {currentContext?.startsWith("item-details:") && <ItemDetails ref={currentMenuRef} />}
         </div>,
         document.body
     )

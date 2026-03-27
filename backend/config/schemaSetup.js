@@ -18,7 +18,9 @@ const collectionValidators = [
                     '_id',
                     'name',
                     'parentDirId',
-                    'userId'
+                    'userId',
+                    'size',
+                    'path'
                 ],
                 properties: {
                     _id: {
@@ -50,6 +52,14 @@ const collectionValidators = [
                         bsonType: 'date',
                         description: 'directory last update date'
                     },
+                    size: {
+                        bsonType: 'number',
+                        description: 'folder size'
+                    },
+                    path: {
+                        bsonType: 'array',
+                        description: 'directory path'
+                    },
                     __v: {
                         bsonType: 'number',
                         description: 'for mongoose internal use'
@@ -69,7 +79,8 @@ const collectionValidators = [
                     'name',
                     'extension',
                     'parentDirId',
-                    'userId'
+                    'userId',
+                    'size'
                 ],
                 properties: {
                     _id: {
@@ -133,7 +144,8 @@ const collectionValidators = [
                     'email',
                     'rootDirId',
                     'authStrategy',
-                    'role'
+                    'role',
+                    'maxStorageInBytes'
                 ],
                 properties: {
                     _id: {
@@ -186,6 +198,11 @@ const collectionValidators = [
                     },
                     isDeleted: {
                         bsonType: 'bool',
+                        description: 'user is deleted or not'
+                    },
+                    maxStorageInBytes: {
+                        bsonType: 'number',
+                        description: 'max storage available'
                     },
                     __v: {
                         bsonType: 'number',

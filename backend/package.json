@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "dev": "node --watch --env-file=.env app.js"
+    "dev": "node --watch --env-file=.env app.js",
+    "setup": "node --watch --env-file=.env ./config/schemaSetup.js"
   },
   "keywords": [],
   "author": "",

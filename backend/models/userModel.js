@@ -1,4 +1,5 @@
 import { model, Schema } from "mongoose";
+import { required } from "zod/mini";
 
 const userSchema = new Schema(
     {
@@ -41,6 +42,11 @@ const userSchema = new Schema(
         isDeleted: {
             type: Boolean,
             default: false
+        },
+        maxStorageInBytes: {
+            type: Number,
+            required: [true, "maxStorageInBytes is a required field!"],
+            default: 1 * 1024 ** 3
         }
     },
     {

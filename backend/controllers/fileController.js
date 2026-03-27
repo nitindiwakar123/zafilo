@@ -1,34 +1,58 @@
 import Directory from "../models/directoryModel.js";
 import File from "../models/fileModel.js";
-import { open, readFile, rename, stat } from "node:fs/promises";
+import { open, readFile, rename, stat, unlink } from "node:fs/promises";
 import path from "node:path";
 import mime from "mime-types";
 import { pipeline } from "node:stream/promises";
 import XLSX from "xlsx";
 import mongoose from "mongoose";
+import { Transform } from "node:stream";
+import CustomError from "../utils/customError.js";
+import updateParentSize from "../utils/updateParentSize.js";
 
 export const createFile = async (req, res, next) => {
     const user = req.user;
     const parentDirId = req.params.parentDirId || user.rootDirId.toString();
+    const MAX_SIZE_LIMIT = 50 * 1024 * 1024;
     const filename = req.headers.filename || "untitled";
+    const claimedFileSize = Number(req.headers.filesize);
     const extension = path.extname(filename);
     const fileId = new mongoose.Types.ObjectId();
     const fullFilename = `${fileId}${extension}`;
     const filePath = `./storage/${fullFilename}`;
     const fileHandle = await open(filePath, "w");
+    const session = await mongoose.startSession();
 
-    console.log({ parentDirId, filename });
+    console.log({extension})
     try {
-        const parentDirData = await Directory.findOne({ _id: parentDirId, userId: user._id }, { _id: 1 }).lean();
+        const parentDirData = await Directory.findOne({ _id: parentDirId, userId: user._id }).select("_id").lean();
         if (!parentDirData) {
             return res.status(404).json({ success: false, error: "Parent Folder Not Found!" });
+        }
+        console.log({ parentDirData });
+
+
+        if (claimedFileSize > MAX_SIZE_LIMIT) {
+            await unlink(filePath).catch(() => { });
+            return req.destroy();
         }
 
         const writeStream = fileHandle.createWriteStream();
 
-        await pipeline(req, writeStream);
+        let size = 0;
+        const counter = new Transform({
+            async transform(chunk, encoding, callback) {
+                size += chunk.length;
+                if (size > claimedFileSize) {
+                    console.log({ size, claimedFileSize });
+                    return callback(new CustomError("LIMIT_EXCEEDED!", 413));
+                }
+                callback(null, chunk);
+            }
+        });
 
-        const { size } = await stat(filePath);
+        await pipeline(req, counter, writeStream);
+
         const fileData = {
             _id: fileId,
             name: filename,
@@ -37,16 +61,24 @@ export const createFile = async (req, res, next) => {
             userId: user._id,
             size
         };
-        const createdFile = await File.insertOne(fileData);
 
+        session.startTransaction()
+        const createdFile = await File.create([fileData], { session });
+        await updateParentSize(parentDirData._id, size, session);
+        await session.commitTransaction();
         return res.status(201).json({ success: true, "message": "File Successfully Uploaded!", data: createdFile });
     } catch (error) {
+        await session.abortTransaction();
         await unlink(filePath).catch(() => { });
+        if (error.code === 413) {
+            return res.status(413).json({ success: false, error: "File exceeds 50MB limit." });
+        }
         if (error.code === 121) {
             console.log(error.errorResponse.errInfo.details.schemaRulesNotSatisfied[0].propertiesNotSatisfied[0]);
         }
         next(error);
     } finally {
+        await session.endSession();
         await fileHandle?.close();
     }
 }
@@ -55,29 +87,22 @@ export const getFile = async (req, res) => {
     const { id } = req.params;
     const user = req.user;
     try {
-        const fileData = await File.findOne({ _id: id, userId: user._id }, { extension: 1, name: 1 });
+        const fileData = await File.findOne({ _id: id, userId: user._id }).select("extension name");
         if (!fileData) {
             return res.status(404).json({ success: false, message: "File not Found!" });
         }
         const fullFilePath = `${process.cwd()}/storage/${id}${fileData.extension}`;
+        console.log({fullFilePath})
         if (req.query.action === "download") {
             console.log({ fileData });
             return res.status(200).download(fullFilePath, fileData.name);
         }
 
         fileData.openedAt = new Date();
-        fileData.save();
+        await fileData.save();
 
         const mimeType = mime.lookup(fileData.extension) || 'application/octet-stream';
         res.set('Content-Type', mimeType);          // <-- now it sticks
-
-        if (fileData.extension === ".xlsx") {
-            const workbook = XLSX.readFile(fullFilePath);
-            const sheetName = workbook.SheetNames[0];
-            const sheet = workbook.Sheets[sheetName];
-            const fileJsonData = XLSX.utils.sheet_to_json(sheet);
-            return res.status(200).json({ success: true, fileJsonData });
-        }
 
         const fileHandle = await open(fullFilePath, 'r');
         const readStream = fileHandle.createReadStream();
@@ -112,49 +137,71 @@ export const renameFile = async (req, res, next) => {
 
 export const deleteFile = async (req, res, next) => {
     const { id } = req.params;
+    const session = await mongoose.startSession();
     try {
         const user = req.user;
         const file = await File.findOne(
-            { _id: id, userId: user._id },
-            { extension: 1 }
-        );
+            { _id: id, userId: user._id }).select("extension parentDirId size");
         if (!file) {
             return res.status(404).json({ success: false, message: "File not Found!" });
         }
-        const { extension } = file;
+        const { extension, parentDirId, size } = file;
         await rename(`./storage/${id}${extension}`, `./trash/${id}${extension}`);
-        await file.deleteOne();
+        session.startTransaction();
+        await file.deleteOne({ session });
+        await updateParentSize(parentDirId, -size, session);
+        await session.commitTransaction();
 
         return res.status(200).json({ success: true, message: "File Deleted Successfully!" });
     } catch (error) {
+        await session.abortTransaction();
         if (error.code === 121) {
             console.log(error.errorResponse.errInfo.details);
         }
         next(error);
+    } finally {
+        await session.endSession()
     }
 }
 
 export const deleteFiles = async (req, res, next) => {
     const user = req.user;
     const parentDirId = req.params.parentDirId || user.rootDirId.toString();
-    const files = req.body?.files || [];
+    const fileId = req.body?.files || [];
+    console.log({ fileId });
     const userId = user._id.toString();
-    if (files.length <= 0) {
+    const session = await mongoose.startSession();
+    if (fileId.length <= 0) {
         return res.status(404).json({ success: false, message: "files Id not received!" });
     }
     try {
         const isParentDirExists = await Directory.exists({ _id: parentDirId, userId });
         if (!isParentDirExists) return res.status(404).json({ success: false, error: "parent folder not found!" });
 
-        for (const { fileId, extension } of files) {
-            await rename(`./storage/${fileId}${extension}`, `./trash/${fileId}${extension}`);
+        const files = await File.find({ _id: { $in: fileId } }).select("extension size");
+        if (files.length <= 0) return res.status(404).json({ success: false, message: "files not exists!" });
+        console.log({ files });
+
+        for (const { _id, extension } of files) {
+            await rename(`./storage/${_id.toString()}${extension}`, `./trash/${_id.toString()}${extension}`);
         }
 
-        await File.deleteMany({ _id: { $in: files.map(({ fileId }) => fileId) } });
+        const totalSize = files.reduce((accumulator, {size}) => {
+            return accumulator + size;
+        }, 0);
+        console.log({totalSize});
+
+        session.startTransaction();
+        await File.deleteMany({ _id: { $in: fileId } }, { session });
+        await updateParentSize(parentDirId, -totalSize, session);
+        await session.commitTransaction();
         return res.status(200).json({ success: true, message: "files deleted successfully!" });
     } catch (error) {
+        await session.abortTransaction();
         console.log(error);
         next(error);
+    } finally {
+        await session.endSession();
     }
 }
 

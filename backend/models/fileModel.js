@@ -23,7 +23,8 @@ const fileSchema = new Schema(
             type: Schema.Types.Date,
         },
         size: {
-           type: Number 
+            type: Number,
+            required: [true, "size is a required field!"]
         }
     },
     {

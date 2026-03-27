@@ -39,7 +39,7 @@ app.use("/users", checkAuth, checkIsUserDeleted, usersRoutes);
 app.use("/user", userRoutes);
 
 app.use((err, req, res, next) => {
-    console.log({ err });
+    // console.log({ err });
     res.status(err.status || 500).json({ success: false, error: err.message });
 });
 

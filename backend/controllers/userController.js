@@ -16,13 +16,14 @@ import { z } from "zod/v4";
 export const getCurrentUser = async (req, res) => {
     const userId = req.user._id;
     // console.log(req.user);
-    const user = await User.findById(userId).select('name email role').lean();
+    const user = await User.findById(userId).select('name email role maxStorageInBytes').lean();
     return res.status(200).json({
         success: true, data: {
             userId: user._id.toString(),
             name: user.name,
             email: user.email,
             role: user.role,
+            maxStorageInBytes: user.maxStorageInBytes,
         }
     });
 }
@@ -154,13 +155,15 @@ export const userRegister = async (req, res, next) => {
 
         session.startTransaction();
 
-        const userRootDir = await Directory.insertOne({
+        const rootDirId = new mongoose.Types.ObjectId();
+
+        await Directory.insertOne({
+            _id: rootDirId,
             name: `root-${email}`,
             parentDirId: null,
-            userId
+            userId,
+            path: [rootDirId]
         }, { session });
-
-        const rootDirId = userRootDir._id;
 
         const hashedPassword = await hash(password, 12);
 
@@ -239,7 +242,7 @@ export const userLogin = async (req, res, next) => {
 
         return res.json(result);
     } catch (error) {
-        console.log(error);
+        console.log({error});
         next(error);
     }
 }
@@ -335,7 +338,8 @@ export const googleAuth = async (req, res, next) => {
                 _id: rootDirId,
                 name: `root-${email}`,
                 parentDirId: null,
-                userId
+                userId,
+                path: [rootDirId]
             }, { session });
 
             await User.insertOne({
@@ -385,6 +389,9 @@ export const googleAuth = async (req, res, next) => {
 
         return res.status(200).json({ success: true, message: "Authenticated successfully!" });
     } catch (error) {
+        if(error.code === 121) {
+            console.log({error: error.errInfo.details.schemaRulesNotSatisfied[0].propertiesNotSatisfied[0].details});
+        }
         // await session.abortTransaction();
         next(error);
     }

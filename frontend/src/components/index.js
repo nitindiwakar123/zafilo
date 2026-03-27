@@ -20,7 +20,8 @@ import Input from "./Input";
 import CreateDirectoryModal from "./CreateMenu/CreateDirectoryModal";
 import UploadingFilesProgress from "./CreateMenu/UploadingFilesProgress";
 import FileViewer from "./FileViewer/FileViewer";
-import FileDetails from "./FileDetails";
+import ItemDetails from "./ItemDetails";
+import BreadCrumb from "./DirectoryView/BreadCrumb";
 
 export {
     Sidebar,
@@ -45,5 +46,6 @@ export {
     CreateDirectoryModal,
     UploadingFilesProgress,
     FileViewer,
-    FileDetails
+    ItemDetails,
+    BreadCrumb
 }

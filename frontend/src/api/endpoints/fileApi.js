@@ -31,6 +31,7 @@ export const uploadFileApi = async (parentDirId, file, onUploadProgress) => {
                 headers: {
                     "Content-Type": file.type,
                     filename: file.name,
+                    filesize: file.size,
                 },
                 onUploadProgress: (event) => {
                     if (event.lengthComputable) {

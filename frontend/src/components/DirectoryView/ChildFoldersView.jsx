@@ -1,4 +1,5 @@
 import {Folder} from "../index";
+import { formatBytes } from "../ItemDetails";
 
 function ChildFoldersView({ directoriesList = [] }) {
   return (
@@ -6,8 +7,8 @@ function ChildFoldersView({ directoriesList = [] }) {
       <h4 className='text-md text-text-gray'>Folders</h4>
 
       <ul className='flex gap-2 flex-wrap'>
-        {directoriesList?.map(({ _id, name }) => (
-          <li key={_id}>
+        {directoriesList?.map(({ _id, name, size }) => (
+          <li key={_id} title={`Size: ${formatBytes(size)}`}>
             <Folder name={name} id={_id} />
           </li>
         ))}

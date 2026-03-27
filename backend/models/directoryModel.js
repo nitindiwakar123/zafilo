@@ -19,6 +19,15 @@ const directorySchema = new Schema(
         userId: {
             type: Schema.Types.ObjectId,
             required: [true, "userId is a required field!"],
+        },
+        size: {
+            type: Number,
+            required: [true, "size is a required field!"],
+            default: 0
+        },
+        path: {
+            type: Array,
+            required: [true, "path is a required field!"]
         }
     },
     {

@@ -69,11 +69,11 @@ function Options({
             isBorder: true
         },
         {
-            title: "File Details",
+            title: "Information",
             icon: TbFileInfo,
             eventHandler: () => {
                 if (!menu.id) return;
-                dispatch(setOpenMenu({ type: `file-details:${menu.id}`, x: 0, y: 0, itemContext: menu.itemContext, id: menu.id, name: menu.name }));
+                dispatch(setOpenMenu({ type: `item-details:${menu.id}`, x: 0, y: 0, itemContext: menu.itemContext, id: menu.id, name: menu.name }));
             },
         },
     ];
